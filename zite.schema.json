@@ -1,0 +1,2449 @@
+{
+  "tables": [
+    {
+      "id": "txpGdToqEuw",
+      "sdkName": "teams",
+      "name": "Teams",
+      "primaryFieldId": "fhy2CLNjFRA",
+      "fields": [
+        {
+          "id": "fhy2CLNjFRA",
+          "sdkName": "name",
+          "definition": {
+            "name": "Name",
+            "type": "single_line_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "fp2PZeudCff",
+          "sdkName": "key",
+          "definition": {
+            "name": "Key",
+            "type": "single_line_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "f9pTmekibES",
+          "sdkName": "description",
+          "definition": {
+            "name": "Description",
+            "type": "long_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "feTXAnjfkip",
+          "sdkName": "icon",
+          "definition": {
+            "name": "Icon",
+            "type": "single_line_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "f2FmQSDQSD4",
+          "sdkName": "color",
+          "definition": {
+            "name": "Color",
+            "type": "single_line_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "fbY8qC1W9B4",
+          "sdkName": "issueCounter",
+          "definition": {
+            "name": "Issue Counter",
+            "type": "number",
+            "template": {
+              "numberFormat": "local",
+              "decimalPlaces": 0
+            }
+          }
+        },
+        {
+          "id": "f8MX4WmutJ6",
+          "sdkName": "sprintsEnabled",
+          "definition": {
+            "name": "Sprints Enabled",
+            "type": "checkbox",
+            "template": {}
+          }
+        },
+        {
+          "id": "fkUithWMhgg",
+          "sdkName": "sprintDurationWeeks",
+          "definition": {
+            "name": "Sprint Duration Weeks",
+            "type": "number",
+            "template": {
+              "numberFormat": "local",
+              "decimalPlaces": 0
+            }
+          }
+        },
+        {
+          "id": "foprnUbJYtd",
+          "sdkName": "intakeEnabled",
+          "definition": {
+            "name": "Intake Enabled",
+            "type": "checkbox",
+            "template": {}
+          }
+        },
+        {
+          "id": "f1YExf3Herz",
+          "sdkName": "estimateScale",
+          "definition": {
+            "name": "Estimate Scale",
+            "type": "single_select",
+            "template": {
+              "options": [
+                {
+                  "value": "pNnq",
+                  "label": "fibonacci",
+                  "color": "purple"
+                },
+                {
+                  "value": "t3px",
+                  "label": "linear",
+                  "color": "orange"
+                },
+                {
+                  "value": "ke4f",
+                  "label": "exponential",
+                  "color": "blue"
+                },
+                {
+                  "value": "hW8g",
+                  "label": "tshirt",
+                  "color": "gray"
+                },
+                {
+                  "value": "qVpN",
+                  "label": "none",
+                  "color": "red"
+                }
+              ],
+              "disableColors": false
+            }
+          }
+        },
+        {
+          "id": "f7dgpxa49js",
+          "sdkName": "position",
+          "definition": {
+            "name": "Position",
+            "type": "number",
+            "template": {
+              "numberFormat": "local",
+              "decimalPlaces": 0
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "tfM67nJAKCd",
+      "sdkName": "members",
+      "name": "Members",
+      "primaryFieldId": "fnHFGpRRqfq",
+      "fields": [
+        {
+          "id": "fnHFGpRRqfq",
+          "sdkName": "name",
+          "definition": {
+            "name": "Name",
+            "type": "single_line_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "fwkyLUFuV7C",
+          "sdkName": "email",
+          "definition": {
+            "name": "Email",
+            "type": "email",
+            "template": {}
+          }
+        },
+        {
+          "id": "f6ApMLovjaL",
+          "sdkName": "avatarUrl",
+          "definition": {
+            "name": "Avatar Url",
+            "type": "url",
+            "template": {}
+          }
+        },
+        {
+          "id": "fpe6BLYA7ME",
+          "sdkName": "jobTitle",
+          "definition": {
+            "name": "Job Title",
+            "type": "single_line_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "ffSr3ccSXS9",
+          "sdkName": "color",
+          "definition": {
+            "name": "Color",
+            "type": "single_line_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "fmPR466J7vq",
+          "sdkName": "role",
+          "definition": {
+            "name": "Role",
+            "type": "single_select",
+            "template": {
+              "options": [
+                {
+                  "value": "7Eap",
+                  "label": "Admin",
+                  "color": "purple"
+                },
+                {
+                  "value": "nrbm",
+                  "label": "Member",
+                  "color": "orange"
+                },
+                {
+                  "value": "6UYT",
+                  "label": "Guest",
+                  "color": "blue"
+                }
+              ],
+              "disableColors": false
+            }
+          }
+        },
+        {
+          "id": "fjut89BhuJf",
+          "sdkName": "status",
+          "definition": {
+            "name": "Status",
+            "type": "single_select",
+            "template": {
+              "options": [
+                {
+                  "value": "6A9S",
+                  "label": "Active",
+                  "color": "purple"
+                },
+                {
+                  "value": "6iyP",
+                  "label": "Invited",
+                  "color": "orange"
+                },
+                {
+                  "value": "fRYM",
+                  "label": "Deactivated",
+                  "color": "blue"
+                }
+              ],
+              "disableColors": false
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "ttff4uRSYqC",
+      "sdkName": "teamMembers",
+      "name": "Team Members",
+      "primaryFieldId": "fg2mzpFRSs8",
+      "fields": [
+        {
+          "id": "fg2mzpFRSs8",
+          "sdkName": "name",
+          "definition": {
+            "name": "Name",
+            "type": "single_line_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "f6oaRLdhyXd",
+          "sdkName": "teamId",
+          "definition": {
+            "name": "Team Id",
+            "type": "single_line_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "fjLwaA5npWu",
+          "sdkName": "memberId",
+          "definition": {
+            "name": "Member Id",
+            "type": "single_line_text",
+            "template": {}
+          }
+        }
+      ]
+    },
+    {
+      "id": "tjapqPKScsy",
+      "sdkName": "statuses",
+      "name": "Statuses",
+      "primaryFieldId": "frrzkj1ssmT",
+      "fields": [
+        {
+          "id": "frrzkj1ssmT",
+          "sdkName": "name",
+          "definition": {
+            "name": "Name",
+            "type": "single_line_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "fvSVnW8j7eZ",
+          "sdkName": "teamId",
+          "definition": {
+            "name": "Team Id",
+            "type": "single_line_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "fwiBvV4VJx5",
+          "sdkName": "description",
+          "definition": {
+            "name": "Description",
+            "type": "single_line_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "f3M66kRNHLe",
+          "sdkName": "color",
+          "definition": {
+            "name": "Color",
+            "type": "single_line_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "fq8VHbXh7mr",
+          "sdkName": "position",
+          "definition": {
+            "name": "Position",
+            "type": "number",
+            "template": {
+              "numberFormat": "local",
+              "decimalPlaces": 0
+            }
+          }
+        },
+        {
+          "id": "ft4A9X1BdrA",
+          "sdkName": "type",
+          "definition": {
+            "name": "Type",
+            "type": "single_select",
+            "template": {
+              "options": [
+                {
+                  "value": "6rps",
+                  "label": "intake",
+                  "color": "purple"
+                },
+                {
+                  "value": "wiRg",
+                  "label": "backlog",
+                  "color": "orange"
+                },
+                {
+                  "value": "6j3R",
+                  "label": "unstarted",
+                  "color": "blue"
+                },
+                {
+                  "value": "jGza",
+                  "label": "started",
+                  "color": "gray"
+                },
+                {
+                  "value": "kcgG",
+                  "label": "completed",
+                  "color": "red"
+                },
+                {
+                  "value": "iEU5",
+                  "label": "canceled",
+                  "color": "yellow"
+                }
+              ],
+              "disableColors": false
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "tpRrsMoMCQH",
+      "sdkName": "goals",
+      "name": "Goals",
+      "primaryFieldId": "f7fRNv2EtY4",
+      "fields": [
+        {
+          "id": "f7fRNv2EtY4",
+          "sdkName": "name",
+          "definition": {
+            "name": "Name",
+            "type": "single_line_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "f9upAkJTG8N",
+          "sdkName": "summary",
+          "definition": {
+            "name": "Summary",
+            "type": "single_line_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "fkDMGvfQmsG",
+          "sdkName": "description",
+          "definition": {
+            "name": "Description",
+            "type": "long_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "f8zBHEHTmc7",
+          "sdkName": "ownerId",
+          "definition": {
+            "name": "Owner Id",
+            "type": "single_line_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "fjaaUXhk88Q",
+          "sdkName": "icon",
+          "definition": {
+            "name": "Icon",
+            "type": "single_line_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "fd47eqHonXX",
+          "sdkName": "color",
+          "definition": {
+            "name": "Color",
+            "type": "single_line_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "fqf4UxAuYuH",
+          "sdkName": "targetDate",
+          "definition": {
+            "name": "Target Date",
+            "type": "date",
+            "template": {
+              "dateFormat": "local"
+            }
+          }
+        },
+        {
+          "id": "fushj3x5Awq",
+          "sdkName": "position",
+          "definition": {
+            "name": "Position",
+            "type": "number",
+            "template": {
+              "numberFormat": "local",
+              "decimalPlaces": 0
+            }
+          }
+        },
+        {
+          "id": "fs2RaycUBmn",
+          "sdkName": "status",
+          "definition": {
+            "name": "Status",
+            "type": "single_select",
+            "template": {
+              "options": [
+                {
+                  "value": "gCNr",
+                  "label": "Planned",
+                  "color": "purple"
+                },
+                {
+                  "value": "e6rH",
+                  "label": "Active",
+                  "color": "orange"
+                },
+                {
+                  "value": "qoqF",
+                  "label": "Completed",
+                  "color": "blue"
+                }
+              ],
+              "disableColors": false
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "tjguzXXLdhm",
+      "sdkName": "projects",
+      "name": "Projects",
+      "primaryFieldId": "fssrtZZdjZ8",
+      "fields": [
+        {
+          "id": "fssrtZZdjZ8",
+          "sdkName": "name",
+          "definition": {
+            "name": "Name",
+            "type": "single_line_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "fn2s7kg5SEE",
+          "sdkName": "summary",
+          "definition": {
+            "name": "Summary",
+            "type": "single_line_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "f9Donvxi9Wz",
+          "sdkName": "description",
+          "definition": {
+            "name": "Description",
+            "type": "long_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "fkipuwPUkHA",
+          "sdkName": "leadId",
+          "definition": {
+            "name": "Lead Id",
+            "type": "single_line_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "fkqoLoowTqE",
+          "sdkName": "teamId",
+          "definition": {
+            "name": "Team Id",
+            "type": "single_line_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "fxgDbv1uP5q",
+          "sdkName": "goalId",
+          "definition": {
+            "name": "Goal Id",
+            "type": "single_line_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "fgj4QktviFr",
+          "sdkName": "icon",
+          "definition": {
+            "name": "Icon",
+            "type": "single_line_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "fbXSuTHmy8D",
+          "sdkName": "color",
+          "definition": {
+            "name": "Color",
+            "type": "single_line_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "fuEhefMLz28",
+          "sdkName": "priority",
+          "definition": {
+            "name": "Priority",
+            "type": "number",
+            "template": {
+              "numberFormat": "local",
+              "decimalPlaces": 0
+            }
+          }
+        },
+        {
+          "id": "fiBpfPwPWY6",
+          "sdkName": "startDate",
+          "definition": {
+            "name": "Start Date",
+            "type": "date",
+            "template": {
+              "dateFormat": "local"
+            }
+          }
+        },
+        {
+          "id": "f1ELFociN6b",
+          "sdkName": "targetDate",
+          "definition": {
+            "name": "Target Date",
+            "type": "date",
+            "template": {
+              "dateFormat": "local"
+            }
+          }
+        },
+        {
+          "id": "f5YUbyHZEoC",
+          "sdkName": "completedAt",
+          "definition": {
+            "name": "Completed At",
+            "type": "datetime",
+            "template": {
+              "timezone": "",
+              "dateFormat": "local",
+              "timeFormat": "12h",
+              "displayTimeZone": false
+            }
+          }
+        },
+        {
+          "id": "fcAk7icC4yZ",
+          "sdkName": "position",
+          "definition": {
+            "name": "Position",
+            "type": "number",
+            "template": {
+              "numberFormat": "local",
+              "decimalPlaces": 0
+            }
+          }
+        },
+        {
+          "id": "fcaxQMdnZfi",
+          "sdkName": "status",
+          "definition": {
+            "name": "Status",
+            "type": "single_select",
+            "template": {
+              "options": [
+                {
+                  "value": "ok1R",
+                  "label": "Backlog",
+                  "color": "purple"
+                },
+                {
+                  "value": "fscZ",
+                  "label": "Planned",
+                  "color": "orange"
+                },
+                {
+                  "value": "rHtM",
+                  "label": "In Progress",
+                  "color": "blue"
+                },
+                {
+                  "value": "w2ds",
+                  "label": "Paused",
+                  "color": "gray"
+                },
+                {
+                  "value": "4YQL",
+                  "label": "Completed",
+                  "color": "red"
+                },
+                {
+                  "value": "sTGR",
+                  "label": "Canceled",
+                  "color": "yellow"
+                }
+              ],
+              "disableColors": false
+            }
+          }
+        },
+        {
+          "id": "f7EhrXTGRuG",
+          "sdkName": "health",
+          "definition": {
+            "name": "Health",
+            "type": "single_select",
+            "template": {
+              "options": [
+                {
+                  "value": "6Nd5",
+                  "label": "On Track",
+                  "color": "purple"
+                },
+                {
+                  "value": "1xri",
+                  "label": "At Risk",
+                  "color": "orange"
+                },
+                {
+                  "value": "cC5D",
+                  "label": "Off Track",
+                  "color": "blue"
+                },
+                {
+                  "value": "hBsR",
+                  "label": "Unknown",
+                  "color": "gray"
+                }
+              ],
+              "disableColors": false
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "trBpz1fmudB",
+      "sdkName": "milestones",
+      "name": "Milestones",
+      "primaryFieldId": "f2CWMUAdYXH",
+      "fields": [
+        {
+          "id": "f2CWMUAdYXH",
+          "sdkName": "name",
+          "definition": {
+            "name": "Name",
+            "type": "single_line_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "f4nJ7Ts3guz",
+          "sdkName": "projectId",
+          "definition": {
+            "name": "Project Id",
+            "type": "single_line_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "fkdVpeyf3Yp",
+          "sdkName": "description",
+          "definition": {
+            "name": "Description",
+            "type": "long_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "fv1UGabi9JC",
+          "sdkName": "targetDate",
+          "definition": {
+            "name": "Target Date",
+            "type": "date",
+            "template": {
+              "dateFormat": "local"
+            }
+          }
+        },
+        {
+          "id": "fi4MaEa6ooy",
+          "sdkName": "position",
+          "definition": {
+            "name": "Position",
+            "type": "number",
+            "template": {
+              "numberFormat": "local",
+              "decimalPlaces": 0
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "trjb8epsYtF",
+      "sdkName": "checkIns",
+      "name": "Check Ins",
+      "primaryFieldId": "fqeWacfW5gR",
+      "fields": [
+        {
+          "id": "fqeWacfW5gR",
+          "sdkName": "name",
+          "definition": {
+            "name": "Name",
+            "type": "single_line_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "fvSq58juN4Y",
+          "sdkName": "projectId",
+          "definition": {
+            "name": "Project Id",
+            "type": "single_line_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "fkbFwXYkawb",
+          "sdkName": "authorId",
+          "definition": {
+            "name": "Author Id",
+            "type": "single_line_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "fdb2NkMVNYR",
+          "sdkName": "body",
+          "definition": {
+            "name": "Body",
+            "type": "long_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "fuGZ5CguD4q",
+          "sdkName": "health",
+          "definition": {
+            "name": "Health",
+            "type": "single_select",
+            "template": {
+              "options": [
+                {
+                  "value": "skKj",
+                  "label": "On Track",
+                  "color": "purple"
+                },
+                {
+                  "value": "q19b",
+                  "label": "At Risk",
+                  "color": "orange"
+                },
+                {
+                  "value": "7MVc",
+                  "label": "Off Track",
+                  "color": "blue"
+                }
+              ],
+              "disableColors": false
+            }
+          }
+        },
+        {
+          "id": "f7La9fF6GfR",
+          "sdkName": "postedAt",
+          "definition": {
+            "name": "Posted At",
+            "type": "datetime",
+            "template": {
+              "timezone": "",
+              "dateFormat": "local",
+              "timeFormat": "12h",
+              "displayTimeZone": false
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "tcs3dEhfy1F",
+      "sdkName": "sprints",
+      "name": "Sprints",
+      "primaryFieldId": "fghpoRJ9Rig",
+      "fields": [
+        {
+          "id": "fghpoRJ9Rig",
+          "sdkName": "name",
+          "definition": {
+            "name": "Name",
+            "type": "single_line_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "fi7wfxujC6r",
+          "sdkName": "number",
+          "definition": {
+            "name": "Number",
+            "type": "number",
+            "template": {
+              "numberFormat": "local",
+              "decimalPlaces": 0
+            }
+          }
+        },
+        {
+          "id": "f1D7DfCB7Lm",
+          "sdkName": "teamId",
+          "definition": {
+            "name": "Team Id",
+            "type": "single_line_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "ffZNwYHcov2",
+          "sdkName": "startDate",
+          "definition": {
+            "name": "Start Date",
+            "type": "date",
+            "template": {
+              "dateFormat": "local"
+            }
+          }
+        },
+        {
+          "id": "fmGD72q7kxM",
+          "sdkName": "endDate",
+          "definition": {
+            "name": "End Date",
+            "type": "date",
+            "template": {
+              "dateFormat": "local"
+            }
+          }
+        },
+        {
+          "id": "fdS11RkT8Dk",
+          "sdkName": "goal",
+          "definition": {
+            "name": "Goal",
+            "type": "long_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "fpAkYkD663j",
+          "sdkName": "completedAt",
+          "definition": {
+            "name": "Completed At",
+            "type": "datetime",
+            "template": {
+              "timezone": "",
+              "dateFormat": "local",
+              "timeFormat": "12h",
+              "displayTimeZone": false
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "tgqcRbkiLXA",
+      "sdkName": "issues",
+      "name": "Issues",
+      "primaryFieldId": "fejP4DaPyBa",
+      "fields": [
+        {
+          "id": "fejP4DaPyBa",
+          "sdkName": "title",
+          "definition": {
+            "name": "Title",
+            "type": "single_line_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "f9JQ5uS5m9j",
+          "sdkName": "identifier",
+          "definition": {
+            "name": "Identifier",
+            "type": "single_line_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "f4UFApWxCrY",
+          "sdkName": "number",
+          "definition": {
+            "name": "Number",
+            "type": "number",
+            "template": {
+              "numberFormat": "local",
+              "decimalPlaces": 0
+            }
+          }
+        },
+        {
+          "id": "fn5bSoeo8dW",
+          "sdkName": "teamId",
+          "definition": {
+            "name": "Team Id",
+            "type": "single_line_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "fcaudpT9Eh6",
+          "sdkName": "description",
+          "definition": {
+            "name": "Description",
+            "type": "long_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "fbfATaWiWSi",
+          "sdkName": "statusId",
+          "definition": {
+            "name": "Status Id",
+            "type": "single_line_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "f2yPSULgJn8",
+          "sdkName": "priority",
+          "definition": {
+            "name": "Priority",
+            "type": "number",
+            "template": {
+              "numberFormat": "local",
+              "decimalPlaces": 0
+            }
+          }
+        },
+        {
+          "id": "f7M7r8C7Ust",
+          "sdkName": "estimate",
+          "definition": {
+            "name": "Estimate",
+            "type": "number",
+            "template": {
+              "numberFormat": "local",
+              "decimalPlaces": 0
+            }
+          }
+        },
+        {
+          "id": "fw2BuaZ1CSf",
+          "sdkName": "assigneeId",
+          "definition": {
+            "name": "Assignee Id",
+            "type": "single_line_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "frV4N6QJrez",
+          "sdkName": "creatorId",
+          "definition": {
+            "name": "Creator Id",
+            "type": "single_line_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "fs1ggdSNXyN",
+          "sdkName": "projectId",
+          "definition": {
+            "name": "Project Id",
+            "type": "single_line_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "fmHCkUEqcvg",
+          "sdkName": "milestoneId",
+          "definition": {
+            "name": "Milestone Id",
+            "type": "single_line_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "f87XZ58mR6z",
+          "sdkName": "sprintId",
+          "definition": {
+            "name": "Sprint Id",
+            "type": "single_line_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "fbuHtbbrRTp",
+          "sdkName": "parentId",
+          "definition": {
+            "name": "Parent Id",
+            "type": "single_line_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "foTCNeboWNm",
+          "sdkName": "dueDate",
+          "definition": {
+            "name": "Due Date",
+            "type": "date",
+            "template": {
+              "dateFormat": "local"
+            }
+          }
+        },
+        {
+          "id": "fokCqZxLVA4",
+          "sdkName": "startedAt",
+          "definition": {
+            "name": "Started At",
+            "type": "datetime",
+            "template": {
+              "timezone": "",
+              "dateFormat": "local",
+              "timeFormat": "12h",
+              "displayTimeZone": false
+            }
+          }
+        },
+        {
+          "id": "fkaHqZwHFhr",
+          "sdkName": "completedAt",
+          "definition": {
+            "name": "Completed At",
+            "type": "datetime",
+            "template": {
+              "timezone": "",
+              "dateFormat": "local",
+              "timeFormat": "12h",
+              "displayTimeZone": false
+            }
+          }
+        },
+        {
+          "id": "f1hE3o51F1z",
+          "sdkName": "canceledAt",
+          "definition": {
+            "name": "Canceled At",
+            "type": "datetime",
+            "template": {
+              "timezone": "",
+              "dateFormat": "local",
+              "timeFormat": "12h",
+              "displayTimeZone": false
+            }
+          }
+        },
+        {
+          "id": "fegs5jZjctJ",
+          "sdkName": "openedAt",
+          "definition": {
+            "name": "Opened At",
+            "type": "datetime",
+            "template": {
+              "timezone": "",
+              "dateFormat": "local",
+              "timeFormat": "12h",
+              "displayTimeZone": false
+            }
+          }
+        },
+        {
+          "id": "fuSYzb3Sibg",
+          "sdkName": "position",
+          "definition": {
+            "name": "Position",
+            "type": "number",
+            "template": {
+              "numberFormat": "local",
+              "decimalPlaces": 0
+            }
+          }
+        },
+        {
+          "id": "fnsCjBH7AL1",
+          "sdkName": "archived",
+          "definition": {
+            "name": "Archived",
+            "type": "checkbox",
+            "template": {}
+          }
+        },
+        {
+          "id": "frkDDoPWKBM",
+          "sdkName": "issueType",
+          "definition": {
+            "name": "Issue Type",
+            "type": "single_select",
+            "template": {
+              "options": [
+                {
+                  "value": "a2UW",
+                  "label": "Feature",
+                  "color": "purple"
+                },
+                {
+                  "value": "eByS",
+                  "label": "Bug",
+                  "color": "orange"
+                },
+                {
+                  "value": "psaj",
+                  "label": "Improvement",
+                  "color": "blue"
+                },
+                {
+                  "value": "qif5",
+                  "label": "Task",
+                  "color": "gray"
+                },
+                {
+                  "value": "gHyN",
+                  "label": "Spike",
+                  "color": "red"
+                },
+                {
+                  "value": "4TUe",
+                  "label": "Chore",
+                  "color": "yellow"
+                }
+              ],
+              "disableColors": false
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "tu8aEEc5zs6",
+      "sdkName": "labels",
+      "name": "Labels",
+      "primaryFieldId": "f2oJmmZYtRu",
+      "fields": [
+        {
+          "id": "f2oJmmZYtRu",
+          "sdkName": "name",
+          "definition": {
+            "name": "Name",
+            "type": "single_line_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "fjA3aDBKode",
+          "sdkName": "color",
+          "definition": {
+            "name": "Color",
+            "type": "single_line_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "fmNgdPiW8zP",
+          "sdkName": "description",
+          "definition": {
+            "name": "Description",
+            "type": "single_line_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "fotwWM765g1",
+          "sdkName": "teamId",
+          "definition": {
+            "name": "Team Id",
+            "type": "single_line_text",
+            "template": {}
+          }
+        }
+      ]
+    },
+    {
+      "id": "t5X5y5FtMZb",
+      "sdkName": "issueLabels",
+      "name": "Issue Labels",
+      "primaryFieldId": "fwq6gRCk7zK",
+      "fields": [
+        {
+          "id": "fwq6gRCk7zK",
+          "sdkName": "name",
+          "definition": {
+            "name": "Name",
+            "type": "single_line_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "f5NniBBjYtR",
+          "sdkName": "issueId",
+          "definition": {
+            "name": "Issue Id",
+            "type": "single_line_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "foaB6d8Rqnv",
+          "sdkName": "labelId",
+          "definition": {
+            "name": "Label Id",
+            "type": "single_line_text",
+            "template": {}
+          }
+        }
+      ]
+    },
+    {
+      "id": "t4PqPnMdcB4",
+      "sdkName": "comments",
+      "name": "Comments",
+      "primaryFieldId": "f218kAo2tPF",
+      "fields": [
+        {
+          "id": "f218kAo2tPF",
+          "sdkName": "body",
+          "definition": {
+            "name": "Body",
+            "type": "long_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "ffrCSqQwTWN",
+          "sdkName": "issueId",
+          "definition": {
+            "name": "Issue Id",
+            "type": "single_line_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "fj89ziqUsQk",
+          "sdkName": "authorId",
+          "definition": {
+            "name": "Author Id",
+            "type": "single_line_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "ff7hVvWGQAu",
+          "sdkName": "parentId",
+          "definition": {
+            "name": "Parent Id",
+            "type": "single_line_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "fqrHUieozz8",
+          "sdkName": "editedAt",
+          "definition": {
+            "name": "Edited At",
+            "type": "datetime",
+            "template": {
+              "timezone": "",
+              "dateFormat": "local",
+              "timeFormat": "12h",
+              "displayTimeZone": false
+            }
+          }
+        },
+        {
+          "id": "fv9x17MsT6q",
+          "sdkName": "postedAt",
+          "definition": {
+            "name": "Posted At",
+            "type": "datetime",
+            "template": {
+              "timezone": "",
+              "dateFormat": "local",
+              "timeFormat": "12h",
+              "displayTimeZone": false
+            }
+          }
+        },
+        {
+          "id": "f7uRpUQLezn",
+          "sdkName": "resolved",
+          "definition": {
+            "name": "Resolved",
+            "type": "checkbox",
+            "template": {}
+          }
+        }
+      ]
+    },
+    {
+      "id": "tsQvotnhUHw",
+      "sdkName": "activity",
+      "name": "Activity",
+      "primaryFieldId": "ftaUtGwDoSe",
+      "fields": [
+        {
+          "id": "ftaUtGwDoSe",
+          "sdkName": "name",
+          "definition": {
+            "name": "Name",
+            "type": "single_line_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "fq7Rb8caDjQ",
+          "sdkName": "issueId",
+          "definition": {
+            "name": "Issue Id",
+            "type": "single_line_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "fovvqSoSwX2",
+          "sdkName": "actorId",
+          "definition": {
+            "name": "Actor Id",
+            "type": "single_line_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "fxqHKCCAvz7",
+          "sdkName": "fromValue",
+          "definition": {
+            "name": "From Value",
+            "type": "single_line_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "f5ftXkeMFTP",
+          "sdkName": "toValue",
+          "definition": {
+            "name": "To Value",
+            "type": "single_line_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "f9uk8QUnPWL",
+          "sdkName": "fromLabel",
+          "definition": {
+            "name": "From Label",
+            "type": "single_line_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "fpcxFfHoPri",
+          "sdkName": "toLabel",
+          "definition": {
+            "name": "To Label",
+            "type": "single_line_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "fjraW8kT11e",
+          "sdkName": "type",
+          "definition": {
+            "name": "Type",
+            "type": "single_select",
+            "template": {
+              "options": [
+                {
+                  "value": "e5ry",
+                  "label": "created",
+                  "color": "purple"
+                },
+                {
+                  "value": "e3YS",
+                  "label": "status_changed",
+                  "color": "orange"
+                },
+                {
+                  "value": "3fsX",
+                  "label": "assignee_changed",
+                  "color": "blue"
+                },
+                {
+                  "value": "qMsT",
+                  "label": "priority_changed",
+                  "color": "gray"
+                },
+                {
+                  "value": "idHh",
+                  "label": "estimate_changed",
+                  "color": "red"
+                },
+                {
+                  "value": "uFrk",
+                  "label": "title_changed",
+                  "color": "yellow"
+                },
+                {
+                  "value": "8aAE",
+                  "label": "description_changed",
+                  "color": "green"
+                },
+                {
+                  "value": "qNGD",
+                  "label": "type_changed",
+                  "color": "pink"
+                },
+                {
+                  "value": "eb8x",
+                  "label": "label_added",
+                  "color": "lime"
+                },
+                {
+                  "value": "83Qg",
+                  "label": "label_removed",
+                  "color": "tangerine"
+                },
+                {
+                  "value": "msUv",
+                  "label": "project_changed",
+                  "color": "emerald"
+                },
+                {
+                  "value": "a9XF",
+                  "label": "milestone_changed",
+                  "color": "sky"
+                },
+                {
+                  "value": "s2tP",
+                  "label": "sprint_changed",
+                  "color": "teal"
+                },
+                {
+                  "value": "7K7o",
+                  "label": "due_date_changed",
+                  "color": "indigo"
+                },
+                {
+                  "value": "ajXN",
+                  "label": "parent_changed",
+                  "color": "cyan"
+                },
+                {
+                  "value": "vDHk",
+                  "label": "relation_added",
+                  "color": "violet"
+                },
+                {
+                  "value": "tRsS",
+                  "label": "relation_removed",
+                  "color": "fuchsia"
+                },
+                {
+                  "value": "haXj",
+                  "label": "attachment_added",
+                  "color": "purple"
+                },
+                {
+                  "value": "heQw",
+                  "label": "attachment_removed",
+                  "color": "orange"
+                },
+                {
+                  "value": "2iUm",
+                  "label": "archived",
+                  "color": "blue"
+                },
+                {
+                  "value": "7Daf",
+                  "label": "unarchived",
+                  "color": "gray"
+                },
+                {
+                  "value": "g569",
+                  "label": "team_changed",
+                  "color": "yellow"
+                }
+              ],
+              "disableColors": false
+            }
+          }
+        },
+        {
+          "id": "f3UdJHTjDW5",
+          "sdkName": "occurredAt",
+          "definition": {
+            "name": "Occurred At",
+            "type": "datetime",
+            "template": {
+              "timezone": "",
+              "dateFormat": "local",
+              "timeFormat": "12h",
+              "displayTimeZone": false
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "tj9tHUY1YUB",
+      "sdkName": "issueRelations",
+      "name": "Issue Relations",
+      "primaryFieldId": "f3nQdsVs5CF",
+      "fields": [
+        {
+          "id": "f3nQdsVs5CF",
+          "sdkName": "name",
+          "definition": {
+            "name": "Name",
+            "type": "single_line_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "fwbpFqppLHv",
+          "sdkName": "issueId",
+          "definition": {
+            "name": "Issue Id",
+            "type": "single_line_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "fvsE4ax7U42",
+          "sdkName": "relatedIssueId",
+          "definition": {
+            "name": "Related Issue Id",
+            "type": "single_line_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "fmW33LCni2s",
+          "sdkName": "type",
+          "definition": {
+            "name": "Type",
+            "type": "single_select",
+            "template": {
+              "options": [
+                {
+                  "value": "hasV",
+                  "label": "blocks",
+                  "color": "purple"
+                },
+                {
+                  "value": "8z2C",
+                  "label": "blocked_by",
+                  "color": "orange"
+                },
+                {
+                  "value": "goDn",
+                  "label": "relates",
+                  "color": "blue"
+                },
+                {
+                  "value": "pDrx",
+                  "label": "duplicate_of",
+                  "color": "gray"
+                },
+                {
+                  "value": "sYsL",
+                  "label": "duplicated_by",
+                  "color": "red"
+                }
+              ],
+              "disableColors": false
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "tibwjrG9tma",
+      "sdkName": "issueSubscribers",
+      "name": "Issue Subscribers",
+      "primaryFieldId": "fu6jeCwP3fn",
+      "fields": [
+        {
+          "id": "fu6jeCwP3fn",
+          "sdkName": "name",
+          "definition": {
+            "name": "Name",
+            "type": "single_line_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "f2UQKsuWsvC",
+          "sdkName": "issueId",
+          "definition": {
+            "name": "Issue Id",
+            "type": "single_line_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "fbGbZfR5kkp",
+          "sdkName": "memberId",
+          "definition": {
+            "name": "Member Id",
+            "type": "single_line_text",
+            "template": {}
+          }
+        }
+      ]
+    },
+    {
+      "id": "t1KgFvxnPu3",
+      "sdkName": "reactions",
+      "name": "Reactions",
+      "primaryFieldId": "fiWD6vm1Psr",
+      "fields": [
+        {
+          "id": "fiWD6vm1Psr",
+          "sdkName": "name",
+          "definition": {
+            "name": "Name",
+            "type": "single_line_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "f8UMLmRA1Kg",
+          "sdkName": "commentId",
+          "definition": {
+            "name": "Comment Id",
+            "type": "single_line_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "f1HVwEAuo5e",
+          "sdkName": "issueId",
+          "definition": {
+            "name": "Issue Id",
+            "type": "single_line_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "fpizjTtuCy9",
+          "sdkName": "memberId",
+          "definition": {
+            "name": "Member Id",
+            "type": "single_line_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "f3NcLwcXFH1",
+          "sdkName": "emoji",
+          "definition": {
+            "name": "Emoji",
+            "type": "single_line_text",
+            "template": {}
+          }
+        }
+      ]
+    },
+    {
+      "id": "tvQ8jtrXoMz",
+      "sdkName": "views",
+      "name": "Views",
+      "primaryFieldId": "fmAuwmNGJRD",
+      "fields": [
+        {
+          "id": "fmAuwmNGJRD",
+          "sdkName": "name",
+          "definition": {
+            "name": "Name",
+            "type": "single_line_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "fsKYVmub7NG",
+          "sdkName": "description",
+          "definition": {
+            "name": "Description",
+            "type": "single_line_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "fiXSjtRomvq",
+          "sdkName": "ownerId",
+          "definition": {
+            "name": "Owner Id",
+            "type": "single_line_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "f3eP63qDBY6",
+          "sdkName": "teamId",
+          "definition": {
+            "name": "Team Id",
+            "type": "single_line_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "fr9C41QPFbb",
+          "sdkName": "icon",
+          "definition": {
+            "name": "Icon",
+            "type": "single_line_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "fvz6V6eAiSf",
+          "sdkName": "color",
+          "definition": {
+            "name": "Color",
+            "type": "single_line_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "foEgP81twn9",
+          "sdkName": "filters",
+          "definition": {
+            "name": "Filters",
+            "type": "long_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "fnSto15CkUX",
+          "sdkName": "grouping",
+          "definition": {
+            "name": "Grouping",
+            "type": "single_line_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "fkF7iHETPZM",
+          "sdkName": "ordering",
+          "definition": {
+            "name": "Ordering",
+            "type": "single_line_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "fb4ih7TWr8o",
+          "sdkName": "options",
+          "definition": {
+            "name": "Options",
+            "type": "long_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "f5PBQ5AiZgm",
+          "sdkName": "position",
+          "definition": {
+            "name": "Position",
+            "type": "number",
+            "template": {
+              "numberFormat": "local",
+              "decimalPlaces": 0
+            }
+          }
+        },
+        {
+          "id": "fhwBjD678Yw",
+          "sdkName": "scope",
+          "definition": {
+            "name": "Scope",
+            "type": "single_select",
+            "template": {
+              "options": [
+                {
+                  "value": "wyhS",
+                  "label": "Personal",
+                  "color": "purple"
+                },
+                {
+                  "value": "xt7X",
+                  "label": "Team",
+                  "color": "orange"
+                },
+                {
+                  "value": "fort",
+                  "label": "Workspace",
+                  "color": "blue"
+                }
+              ],
+              "disableColors": false
+            }
+          }
+        },
+        {
+          "id": "ffC2bpsmzot",
+          "sdkName": "display",
+          "definition": {
+            "name": "Display",
+            "type": "single_select",
+            "template": {
+              "options": [
+                {
+                  "value": "ojNj",
+                  "label": "List",
+                  "color": "purple"
+                },
+                {
+                  "value": "hQxG",
+                  "label": "Board",
+                  "color": "orange"
+                },
+                {
+                  "value": "33m5",
+                  "label": "Table",
+                  "color": "blue"
+                }
+              ],
+              "disableColors": false
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "ttM5KVwgtYV",
+      "sdkName": "pins",
+      "name": "Pins",
+      "primaryFieldId": "f8TX68JmteX",
+      "fields": [
+        {
+          "id": "f8TX68JmteX",
+          "sdkName": "name",
+          "definition": {
+            "name": "Name",
+            "type": "single_line_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "fc2udRrcTrZ",
+          "sdkName": "memberId",
+          "definition": {
+            "name": "Member Id",
+            "type": "single_line_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "f3pVxqdip4z",
+          "sdkName": "entityId",
+          "definition": {
+            "name": "Entity Id",
+            "type": "single_line_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "fe8Wyrdq7pj",
+          "sdkName": "position",
+          "definition": {
+            "name": "Position",
+            "type": "number",
+            "template": {
+              "numberFormat": "local",
+              "decimalPlaces": 0
+            }
+          }
+        },
+        {
+          "id": "fkNjfi8STgd",
+          "sdkName": "entityType",
+          "definition": {
+            "name": "Entity Type",
+            "type": "single_select",
+            "template": {
+              "options": [
+                {
+                  "value": "9puX",
+                  "label": "Project",
+                  "color": "purple"
+                },
+                {
+                  "value": "ms97",
+                  "label": "View",
+                  "color": "orange"
+                },
+                {
+                  "value": "6uTA",
+                  "label": "Sprint",
+                  "color": "blue"
+                },
+                {
+                  "value": "cHbb",
+                  "label": "Issue",
+                  "color": "gray"
+                },
+                {
+                  "value": "v4wp",
+                  "label": "Team",
+                  "color": "red"
+                },
+                {
+                  "value": "xo34",
+                  "label": "Goal",
+                  "color": "yellow"
+                }
+              ],
+              "disableColors": false
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "tqu7Ymi85tj",
+      "sdkName": "notifications",
+      "name": "Notifications",
+      "primaryFieldId": "ffB4mazthZg",
+      "fields": [
+        {
+          "id": "ffB4mazthZg",
+          "sdkName": "name",
+          "definition": {
+            "name": "Name",
+            "type": "single_line_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "fioB3EtxS7A",
+          "sdkName": "body",
+          "definition": {
+            "name": "Body",
+            "type": "single_line_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "fmYHA9XfWR8",
+          "sdkName": "memberId",
+          "definition": {
+            "name": "Member Id",
+            "type": "single_line_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "ffUmh7xB3mW",
+          "sdkName": "actorId",
+          "definition": {
+            "name": "Actor Id",
+            "type": "single_line_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "fdkZyniiFbn",
+          "sdkName": "issueId",
+          "definition": {
+            "name": "Issue Id",
+            "type": "single_line_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "fdJbt5LcJsS",
+          "sdkName": "projectId",
+          "definition": {
+            "name": "Project Id",
+            "type": "single_line_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "f3AF6akra44",
+          "sdkName": "commentId",
+          "definition": {
+            "name": "Comment Id",
+            "type": "single_line_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "fhgDiWye4qx",
+          "sdkName": "readAt",
+          "definition": {
+            "name": "Read At",
+            "type": "datetime",
+            "template": {
+              "timezone": "",
+              "dateFormat": "local",
+              "timeFormat": "12h",
+              "displayTimeZone": false
+            }
+          }
+        },
+        {
+          "id": "f7AGW7Z1Wce",
+          "sdkName": "snoozedUntil",
+          "definition": {
+            "name": "Snoozed Until",
+            "type": "datetime",
+            "template": {
+              "timezone": "",
+              "dateFormat": "local",
+              "timeFormat": "12h",
+              "displayTimeZone": false
+            }
+          }
+        },
+        {
+          "id": "fthBh8dvJH2",
+          "sdkName": "read",
+          "definition": {
+            "name": "Read",
+            "type": "checkbox",
+            "template": {}
+          }
+        },
+        {
+          "id": "frQjqAz7Vbr",
+          "sdkName": "archived",
+          "definition": {
+            "name": "Archived",
+            "type": "checkbox",
+            "template": {}
+          }
+        },
+        {
+          "id": "f5J6TXsxFzX",
+          "sdkName": "type",
+          "definition": {
+            "name": "Type",
+            "type": "single_select",
+            "template": {
+              "options": [
+                {
+                  "value": "1fjo",
+                  "label": "assigned",
+                  "color": "purple"
+                },
+                {
+                  "value": "uaxt",
+                  "label": "unassigned",
+                  "color": "orange"
+                },
+                {
+                  "value": "xq2k",
+                  "label": "mentioned",
+                  "color": "blue"
+                },
+                {
+                  "value": "kfoC",
+                  "label": "commented",
+                  "color": "gray"
+                },
+                {
+                  "value": "5YSa",
+                  "label": "status_changed",
+                  "color": "red"
+                },
+                {
+                  "value": "nxLe",
+                  "label": "priority_changed",
+                  "color": "yellow"
+                },
+                {
+                  "value": "1yCD",
+                  "label": "completed",
+                  "color": "green"
+                },
+                {
+                  "value": "7u5U",
+                  "label": "check_in",
+                  "color": "pink"
+                },
+                {
+                  "value": "wuRH",
+                  "label": "due_soon",
+                  "color": "lime"
+                },
+                {
+                  "value": "tYhc",
+                  "label": "blocked",
+                  "color": "tangerine"
+                },
+                {
+                  "value": "vc4g",
+                  "label": "subscribed",
+                  "color": "emerald"
+                },
+                {
+                  "value": "x1GP",
+                  "label": "reaction",
+                  "color": "sky"
+                },
+                {
+                  "value": "7D1u",
+                  "label": "intake",
+                  "color": "teal"
+                }
+              ],
+              "disableColors": false
+            }
+          }
+        },
+        {
+          "id": "f9WjNnPSRFs",
+          "sdkName": "occurredAt",
+          "definition": {
+            "name": "Occurred At",
+            "type": "datetime",
+            "template": {
+              "timezone": "",
+              "dateFormat": "local",
+              "timeFormat": "12h",
+              "displayTimeZone": false
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "t9h5u3vMid9",
+      "sdkName": "issueAttachments",
+      "name": "Issue Attachments",
+      "primaryFieldId": "fq1QVEVBsff",
+      "fields": [
+        {
+          "id": "fq1QVEVBsff",
+          "sdkName": "title",
+          "definition": {
+            "name": "Title",
+            "type": "single_line_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "f45ZjH8bLoF",
+          "sdkName": "issueId",
+          "definition": {
+            "name": "Issue Id",
+            "type": "single_line_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "fx3vD8G12rh",
+          "sdkName": "url",
+          "definition": {
+            "name": "Url",
+            "type": "url",
+            "template": {}
+          }
+        },
+        {
+          "id": "f7bRhrW7R3Y",
+          "sdkName": "creatorId",
+          "definition": {
+            "name": "Creator Id",
+            "type": "single_line_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "fitMG24qhTW",
+          "sdkName": "addedAt",
+          "definition": {
+            "name": "Added At",
+            "type": "datetime",
+            "template": {
+              "timezone": "",
+              "dateFormat": "local",
+              "timeFormat": "12h",
+              "displayTimeZone": false
+            }
+          }
+        },
+        {
+          "id": "fpSnaMyiCGE",
+          "sdkName": "kind",
+          "definition": {
+            "name": "Kind",
+            "type": "single_select",
+            "template": {
+              "options": [
+                {
+                  "value": "dqiT",
+                  "label": "link",
+                  "color": "purple"
+                },
+                {
+                  "value": "rZns",
+                  "label": "github",
+                  "color": "orange"
+                },
+                {
+                  "value": "1UER",
+                  "label": "figma",
+                  "color": "blue"
+                },
+                {
+                  "value": "b1CR",
+                  "label": "doc",
+                  "color": "gray"
+                },
+                {
+                  "value": "nfhP",
+                  "label": "loom",
+                  "color": "red"
+                },
+                {
+                  "value": "v8hJ",
+                  "label": "sentry",
+                  "color": "yellow"
+                }
+              ],
+              "disableColors": false
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "taPWtBnXcy1",
+      "sdkName": "issueTemplates",
+      "name": "Issue Templates",
+      "primaryFieldId": "f3bNhQxjANu",
+      "fields": [
+        {
+          "id": "f3bNhQxjANu",
+          "sdkName": "name",
+          "definition": {
+            "name": "Name",
+            "type": "single_line_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "fspmfJocSN2",
+          "sdkName": "teamId",
+          "definition": {
+            "name": "Team Id",
+            "type": "single_line_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "f9Tn2EgHBAY",
+          "sdkName": "title",
+          "definition": {
+            "name": "Title",
+            "type": "single_line_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "fj8pHF6QAgy",
+          "sdkName": "description",
+          "definition": {
+            "name": "Description",
+            "type": "long_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "f4s54KF5FXE",
+          "sdkName": "priority",
+          "definition": {
+            "name": "Priority",
+            "type": "number",
+            "template": {
+              "numberFormat": "local",
+              "decimalPlaces": 0
+            }
+          }
+        },
+        {
+          "id": "fpXv4kd6jL6",
+          "sdkName": "estimate",
+          "definition": {
+            "name": "Estimate",
+            "type": "number",
+            "template": {
+              "numberFormat": "local",
+              "decimalPlaces": 0
+            }
+          }
+        },
+        {
+          "id": "fnmWyKYLbvb",
+          "sdkName": "labelIds",
+          "definition": {
+            "name": "Label Ids",
+            "type": "long_text",
+            "template": {}
+          }
+        },
+        {
+          "id": "f4Sr1BLKcmz",
+          "sdkName": "position",
+          "definition": {
+            "name": "Position",
+            "type": "number",
+            "template": {
+              "numberFormat": "local",
+              "decimalPlaces": 0
+            }
+          }
+        },
+        {
+          "id": "fw5beem9pRc",
+          "sdkName": "issueType",
+          "definition": {
+            "name": "Issue Type",
+            "type": "single_select",
+            "template": {
+              "options": [
+                {
+                  "value": "ckPZ",
+                  "label": "Feature",
+                  "color": "purple"
+                },
+                {
+                  "value": "qA1N",
+                  "label": "Bug",
+                  "color": "orange"
+                },
+                {
+                  "value": "42TV",
+                  "label": "Improvement",
+                  "color": "blue"
+                },
+                {
+                  "value": "to7x",
+                  "label": "Task",
+                  "color": "gray"
+                },
+                {
+                  "value": "qZKx",
+                  "label": "Spike",
+                  "color": "red"
+                },
+                {
+                  "value": "2VfN",
+                  "label": "Chore",
+                  "color": "yellow"
+                }
+              ],
+              "disableColors": false
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

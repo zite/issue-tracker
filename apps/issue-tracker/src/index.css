@@ -1,0 +1,347 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * Issue Tracker — paper, ink and a highlighter.
+ *
+ * Warm stone neutrals instead of blue-grey, ink-black primary actions, a
+ * marigold highlighter for "you are here / this is selected", and vermilion
+ * reserved for things asking for attention. Colours are raw RGB channels so
+ * Tailwind's opacity modifier composites; each theme is re-stepped against its
+ * own surfaces (see scripts in the README for the contrast checks).
+ */
+@layer base {
+  :root {
+    --paper: 246 244 239;
+    --card: 255 255 255;
+    --sunken: 239 236 229;
+    --hover: 238 235 227;
+    --pressed: 229 225 216;
+    --line: 232 227 218;
+    --line-strong: 214 207 194;
+    /* A form control's border is often the only thing marking it: 3:1 on card. */
+    --control: 154 146 132;
+
+    --ink: 31 29 26;
+    /* 7.4:1 on card */
+    --ink-2: 90 85 76;
+    /* 5.5:1 on card, 4.7:1 on sunken */
+    --ink-3: 110 104 94;
+
+    --primary: 31 29 26;
+    --on-primary: 251 250 247;
+    --highlight: 255 212 71;
+    --highlight-ink: 31 29 26;
+    --signal: 210 74 34;
+
+    --success: 31 122 74;
+    --warning: 143 90 0;
+    --danger: 191 58 46;
+    --info: 42 98 176;
+    --violet: 106 79 196;
+
+    --shadow: 40 32 16;
+    color-scheme: light;
+  }
+
+  .dark {
+    --paper: 19 18 16;
+    --card: 27 26 23;
+    --sunken: 23 22 19;
+    --hover: 38 36 32;
+    --pressed: 48 46 41;
+    --line: 43 41 36;
+    --line-strong: 61 58 52;
+    --control: 107 102 93;
+
+    --ink: 238 235 228;
+    --ink-2: 181 175 164;
+    --ink-3: 149 143 132;
+
+    --primary: 238 235 228;
+    --on-primary: 19 18 16;
+    --highlight: 255 208 72;
+    --highlight-ink: 31 29 26;
+    --signal: 242 119 79;
+
+    --success: 107 201 143;
+    --warning: 235 180 80;
+    --danger: 240 138 126;
+    --info: 130 178 236;
+    --violet: 174 152 240;
+
+    --shadow: 0 0 0;
+    color-scheme: dark;
+  }
+
+  * {
+    border-color: rgb(var(--line));
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    @apply bg-paper font-sans text-body text-ink antialiased;
+    font-feature-settings: 'ss01', 'cv11';
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    background: rgb(var(--highlight) / 0.55);
+    color: rgb(var(--highlight-ink));
+  }
+
+  :focus-visible {
+    outline: 2px solid rgb(var(--ink) / 0.85);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+
+  input::placeholder,
+  textarea::placeholder {
+    color: rgb(var(--ink-3) / 0.9);
+  }
+
+  /* Quiet scrollbars that still show on hover — a table is scrolled a lot. */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(var(--line-strong)) transparent;
+  }
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgb(var(--line-strong));
+    border-radius: 99px;
+    border: 3px solid transparent;
+    background-clip: content-box;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+}
+
+@layer components {
+  /* The highlighter stroke: the signature "you are here" mark. */
+  .hl {
+    background-image: linear-gradient(transparent 58%, rgb(var(--highlight) / 0.85) 58%, rgb(var(--highlight) / 0.85) 92%, transparent 92%);
+    background-repeat: no-repeat;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+  }
+  .dark .hl {
+    background-image: linear-gradient(transparent 60%, rgb(var(--highlight) / 0.38) 60%, rgb(var(--highlight) / 0.38) 94%, transparent 94%);
+  }
+
+  .skeleton {
+    background: linear-gradient(90deg, rgb(var(--sunken)) 0%, rgb(var(--hover)) 50%, rgb(var(--sunken)) 100%);
+    background-size: 200% 100%;
+    @apply animate-shimmer rounded-sm;
+  }
+
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Written content: descriptions, comments, check-ins. */
+  .prose-issue-tracker {
+    @apply text-body text-ink;
+    overflow-wrap: anywhere;
+  }
+  .prose-issue-tracker > * + * {
+    margin-top: 0.6em;
+  }
+  .prose-issue-tracker h1 {
+    @apply font-display text-[26px] leading-8;
+    margin-top: 1em;
+  }
+  .prose-issue-tracker h2 {
+    @apply font-display text-[22px] leading-7;
+    margin-top: 1em;
+  }
+  .prose-issue-tracker h3 {
+    @apply text-title font-semibold;
+    margin-top: 0.9em;
+  }
+  .prose-issue-tracker h1:first-child,
+  .prose-issue-tracker h2:first-child,
+  .prose-issue-tracker h3:first-child {
+    margin-top: 0;
+  }
+  .prose-issue-tracker p {
+    line-height: 1.6;
+  }
+  .prose-issue-tracker strong {
+    font-weight: 600;
+  }
+  .prose-issue-tracker a {
+    @apply text-ink underline decoration-line-strong decoration-1 underline-offset-[3px] hover:decoration-ink;
+  }
+  .prose-issue-tracker ul,
+  .prose-issue-tracker ol {
+    padding-left: 1.35em;
+  }
+  .prose-issue-tracker ul {
+    list-style: disc;
+  }
+  .prose-issue-tracker ol {
+    list-style: decimal;
+  }
+  .prose-issue-tracker li + li {
+    margin-top: 0.2em;
+  }
+  .prose-issue-tracker li::marker {
+    color: rgb(var(--ink-3));
+  }
+  .prose-issue-tracker blockquote {
+    @apply border-l-2 border-highlight pl-3 text-ink-2;
+  }
+  .prose-issue-tracker code {
+    @apply rounded-xs bg-sunken px-1 py-px font-mono text-[12.5px];
+  }
+  .prose-issue-tracker pre {
+    @apply overflow-x-auto rounded-md bg-sunken p-3 font-mono text-[12.5px] leading-5;
+  }
+  .prose-issue-tracker pre code {
+    @apply bg-transparent p-0;
+  }
+  .prose-issue-tracker hr {
+    @apply my-4 border-line;
+  }
+  .prose-issue-tracker table {
+    @apply w-full border-collapse text-ui;
+  }
+  .prose-issue-tracker th,
+  .prose-issue-tracker td {
+    @apply border border-line px-2 py-1 text-left;
+  }
+  .prose-issue-tracker ul:has(> li > input[type='checkbox']),
+  .prose-issue-tracker ul[data-type='taskList'] {
+    list-style: none;
+    padding-left: 0.2em;
+  }
+
+  /* The rich editor renders into the same prose styles. */
+  .issue-tracker-editor .ProseMirror {
+    outline: none;
+    min-height: inherit;
+  }
+  .issue-tracker-editor .ProseMirror p.is-editor-empty:first-child::before {
+    content: attr(data-placeholder);
+    float: left;
+    height: 0;
+    pointer-events: none;
+    color: rgb(var(--ink-3) / 0.9);
+  }
+  .issue-tracker-editor ul[data-type='taskList'] li {
+    display: flex;
+    gap: 0.5em;
+    align-items: flex-start;
+  }
+  .issue-tracker-editor ul[data-type='taskList'] li > label {
+    margin-top: 0.22em;
+    user-select: none;
+  }
+  .issue-tracker-editor ul[data-type='taskList'] li > div {
+    flex: 1;
+  }
+  .issue-tracker-editor ul[data-type='taskList'] li[data-checked='true'] > div {
+    color: rgb(var(--ink-3));
+    text-decoration: line-through;
+  }
+  /* Checklist boxes speak the status-glyph language: an empty ledger box that fills green with a tick. */
+  .issue-tracker-editor input[type='checkbox'],
+  .prose-issue-tracker input[type='checkbox'] {
+    appearance: none;
+    position: relative;
+    display: inline-block;
+    flex-shrink: 0;
+    width: 15px;
+    height: 15px;
+    margin: 0 0.5em 0 0;
+    vertical-align: -2px;
+    border: 1.5px solid rgb(var(--ink-3));
+    border-radius: 4px;
+    background: rgb(var(--card));
+    cursor: pointer;
+    transition: background-color 120ms ease-out, border-color 120ms ease-out;
+  }
+  .issue-tracker-editor input[type='checkbox'] {
+    margin-right: 0;
+  }
+  .issue-tracker-editor input[type='checkbox']:hover,
+  .prose-issue-tracker input[type='checkbox']:hover {
+    border-color: rgb(var(--ink-2));
+  }
+  .issue-tracker-editor input[type='checkbox']:checked,
+  .prose-issue-tracker input[type='checkbox']:checked {
+    border-color: rgb(var(--success));
+    background: rgb(var(--success));
+  }
+  .issue-tracker-editor input[type='checkbox']:checked::before,
+  .prose-issue-tracker input[type='checkbox']:checked::before {
+    /* Out of flow, so a ticked box keeps the same baseline as an empty one. */
+    content: '';
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    width: 9px;
+    height: 9px;
+    background: rgb(var(--card));
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'%3E%3Cpath d='M1.8 5.2l2.1 2.1L8.2 2.8' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'%3E%3Cpath d='M1.8 5.2l2.1 2.1L8.2 2.8' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat;
+  }
+  .issue-tracker-editor input[type='checkbox']:focus-visible,
+  .prose-issue-tracker input[type='checkbox']:focus-visible {
+    outline: 2px solid rgb(var(--highlight));
+    outline-offset: 2px;
+  }
+  .prose-issue-tracker input[type='checkbox']:disabled {
+    cursor: default;
+  }
+
+  /* Toasts are ink "receipts" in light mode and bone in dark. */
+  [data-sonner-toaster] [data-sonner-toast] {
+    --normal-bg: rgb(var(--primary));
+    --normal-text: rgb(var(--on-primary));
+    --normal-border: transparent;
+    font-family: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif;
+    border-radius: 12px !important;
+    box-shadow: 0 16px 40px -14px rgb(var(--shadow) / 0.45) !important;
+  }
+  [data-sonner-toaster] [data-sonner-toast] [data-description] {
+    color: rgb(var(--on-primary) / 0.72) !important;
+  }
+  [data-sonner-toaster] [data-sonner-toast] [data-button] {
+    background: rgb(var(--highlight)) !important;
+    color: rgb(var(--highlight-ink)) !important;
+    font-weight: 600;
+    border-radius: 6px !important;
+  }
+  [data-sonner-toaster] [data-sonner-toast] [data-close-button] {
+    background: rgb(var(--primary)) !important;
+    color: rgb(var(--on-primary)) !important;
+    border-color: rgb(var(--on-primary) / 0.2) !important;
+  }
+}
+
+@layer utilities {
+  .no-scrollbar {
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .text-balance {
+    text-wrap: balance;
+  }
+  .text-pretty {
+    text-wrap: pretty;
+  }
+}

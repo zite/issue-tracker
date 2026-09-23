@@ -1,0 +1,398 @@
+import { z } from 'zod';
+import { createEndpoint } from 'zitejs/backend';
+import { zite } from 'zitejs/db';
+import { getActor } from '../server/actor';
+import { chunked } from '../server/sql';
+import {
+  ATTACHMENTS, COMMENTS, SPRINTS, PINS, GOALS, ISSUES, LABELS, MEMBERS, MILESTONES,
+  NOTIFICATIONS, PROJECTS, CHECK_INS, RELATIONS, TEAMS, TEMPLATES, VIEWS,
+} from '../seed/data';
+import { ME, type StateKey } from '../seed/types';
+
+const DAY = 86_400_000;
+
+/** Every team gets this workflow; `intake` only where the team has intake on. */
+const WORKFLOW: Array<{ key: StateKey; name: string; type: string; color: string; description: string }> = [
+  { key: 'intake', name: 'Intake', type: 'intake', color: '#D24A22', description: 'Inbound work waiting to be accepted.' },
+  { key: 'backlog', name: 'Backlog', type: 'backlog', color: '#A39C8F', description: 'Accepted but not yet planned.' },
+  { key: 'todo', name: 'To do', type: 'unstarted', color: '#8A8275', description: 'Planned and ready to pick up.' },
+  { key: 'progress', name: 'In Progress', type: 'started', color: '#BF8300', description: 'Being worked on.' },
+  { key: 'review', name: 'In Review', type: 'started', color: '#3F76D0', description: 'Open for review.' },
+  { key: 'done', name: 'Done', type: 'completed', color: '#2E9460', description: 'Finished and shipped.' },
+  { key: 'canceled', name: 'Canceled', type: 'canceled', color: '#A39C8F', description: 'Will not be done.' },
+];
+
+/** Map inserted rows back to seed keys by a natural key, never by array index. */
+function indexBy<T extends { id: string }>(records: T[], key: (r: T) => string | null | undefined) {
+  const out = new Map<string, string>();
+  for (const r of records) {
+    const k = key(r);
+    if (k) out.set(k, r.id);
+  }
+  return out;
+}
+
+export default createEndpoint({
+  description: 'Build the demo workspace the first time Issue Tracker is opened',
+  authenticated: true,
+  inputSchema: z.object({}),
+  outputSchema: z.object({ created: z.boolean(), counts: z.record(z.string(), z.number()) }),
+  execute: async ({ context }) => {
+    // Idempotent: one team is enough to know this already ran.
+    const existing = await zite.teams.findAll({ limit: 1 });
+    if (existing.records.length > 0) return { created: false, counts: {} };
+
+    const actor = await getActor(context);
+    const now = Date.now();
+    const at = (offset: number) => new Date(now + offset * DAY).toISOString();
+    const dateAt = (offset: number) => at(offset).slice(0, 10);
+    const counts: Record<string, number> = {};
+
+    // ---- Teams & members ---------------------------------------------------
+    const teamRes = await zite.teams.bulkCreate({
+      records: TEAMS.map((t, n) => ({
+        name: t.name, key: t.key, description: t.description, icon: t.icon, color: t.color,
+        sprintsEnabled: t.sprintsEnabled, sprintDurationWeeks: t.sprintDurationWeeks, intakeEnabled: t.intakeEnabled,
+        estimateScale: t.estimateScale, issueCounter: 0, position: n + 1,
+      })),
+    });
+    const teamByKey = indexBy(teamRes.records, r => r.key);
+    const teamId = (key: string) => teamByKey.get(key)!;
+    counts.teams = teamRes.records.length;
+
+    const memberRes = await zite.members.bulkCreate({
+      records: MEMBERS.map(m => ({
+        name: m.name, email: m.email.toLowerCase(), jobTitle: m.jobTitle, role: m.role, status: 'Active', color: m.color, avatarUrl: null,
+      })),
+    });
+    const memberByEmail = indexBy(memberRes.records, r => r.email?.toLowerCase());
+    const memberId = (key: string | undefined | null): string | null => {
+      if (!key) return null;
+      if (key === ME) return actor.id;
+      const m = MEMBERS.find(x => x.key === key);
+      return m ? memberByEmail.get(m.email.toLowerCase()) ?? null : null;
+    };
+    const memberName = (key: string) => (key === ME ? actor.name : MEMBERS.find(m => m.key === key)?.name ?? 'Someone');
+    counts.members = memberRes.records.length;
+
+    await zite.teamMembers.bulkCreate({
+      records: [
+        ...MEMBERS.flatMap(m => m.teams.map(t => ({ name: `${t} · ${m.name}`, teamId: teamId(t), memberId: memberId(m.key)! }))),
+        // Whoever opens the template first is on every team.
+        ...TEAMS.map(t => ({ name: `${t.key} · ${actor.name}`, teamId: teamId(t.key), memberId: actor.id })),
+      ],
+    });
+
+    // ---- Statuses ---------------------------------------------------
+    const stateRes = await zite.statuses.bulkCreate({
+      records: TEAMS.flatMap(t =>
+        WORKFLOW.filter(s => s.key !== 'intake' || t.intakeEnabled).map((s, position) => ({
+          name: s.name, teamId: teamId(t.key), type: s.type, color: s.color, description: s.description, position,
+        })),
+      ),
+    });
+    const stateByTeamName = indexBy(stateRes.records, r => `${r.teamId}:${r.name}`);
+    const statusId = (team: string, key: StateKey) => {
+      const def = WORKFLOW.find(s => s.key === key)!;
+      return stateByTeamName.get(`${teamId(team)}:${def.name}`) ?? stateByTeamName.get(`${teamId(team)}:Backlog`)!;
+    };
+    counts.statuses = stateRes.records.length;
+
+    // ---- Labels ------------------------------------------------------------
+    const labelRes = await zite.labels.bulkCreate({
+      records: LABELS.map(l => ({ name: l.name, color: l.color, description: l.description, teamId: l.team ? teamId(l.team) : null })),
+    });
+    const labelByName = indexBy(labelRes.records, r => r.name);
+    const labelId = (key: string) => labelByName.get(LABELS.find(l => l.key === key)?.name ?? '') ?? null;
+    counts.labels = labelRes.records.length;
+
+    // ---- Goals, projects, milestones, updates ------------------------
+    const goalRes = await zite.goals.bulkCreate({
+      records: GOALS.map((i, n) => ({
+        name: i.name, summary: i.summary, description: i.description, status: i.status, ownerId: memberId(i.owner),
+        icon: i.icon, color: i.color, targetDate: i.targetOffset == null ? null : dateAt(i.targetOffset), position: n + 1,
+      })),
+    });
+    const goalByName = indexBy(goalRes.records, r => r.name);
+    const goalId = (key?: string) => (key ? goalByName.get(GOALS.find(i => i.key === key)?.name ?? '') ?? null : null);
+    counts.goals = goalRes.records.length;
+
+    const projectRes = await zite.projects.bulkCreate({
+      records: PROJECTS.map((p, n) => ({
+        name: p.name, summary: p.summary, description: p.description, status: p.status, health: p.health,
+        leadId: memberId(p.lead), teamId: teamId(p.team), goalId: goalId(p.goal), priority: p.priority,
+        icon: p.icon, color: p.color, startDate: p.startOffset == null ? null : dateAt(p.startOffset),
+        targetDate: p.targetOffset == null ? null : dateAt(p.targetOffset),
+        completedAt: p.completedOffset == null ? null : at(p.completedOffset), position: n + 1,
+      })),
+    });
+    const projectByName = indexBy(projectRes.records, r => r.name);
+    const projectId = (key?: string) => (key ? projectByName.get(PROJECTS.find(p => p.key === key)?.name ?? '') ?? null : null);
+    counts.projects = projectRes.records.length;
+
+    const milestoneRes = await zite.milestones.bulkCreate({
+      records: MILESTONES.map((m, n) => ({
+        name: m.name, projectId: projectId(m.project), description: m.description, targetDate: dateAt(m.targetOffset), position: n + 1,
+      })),
+    });
+    const milestoneByKey = indexBy(milestoneRes.records, r => `${r.projectId}:${r.name}`);
+    const milestoneId = (key?: string) => {
+      const m = key ? MILESTONES.find(x => x.key === key) : undefined;
+      return m ? milestoneByKey.get(`${projectId(m.project)}:${m.name}`) ?? null : null;
+    };
+    counts.milestones = milestoneRes.records.length;
+
+    if (CHECK_INS.length) {
+      await zite.checkIns.bulkCreate({
+        records: CHECK_INS.map(u => ({
+          name: `${PROJECTS.find(p => p.key === u.project)?.name ?? 'Project'} — ${u.health}`, projectId: projectId(u.project),
+          authorId: memberId(u.author), health: u.health, body: u.body, postedAt: at(u.offset),
+        })),
+      });
+    }
+    counts.checkIns = CHECK_INS.length;
+
+    // ---- Sprints ------------------------------------------------------------
+    const sprintRes = await zite.sprints.bulkCreate({
+      records: SPRINTS.map(c => ({
+        name: `Sprint ${c.number}`, number: c.number, teamId: teamId(c.team), startDate: dateAt(c.startOffset),
+        endDate: dateAt(c.endOffset), goal: c.goal, completedAt: c.completed ? at(c.endOffset) : null,
+      })),
+    });
+    const sprintByTeamNumber = indexBy(sprintRes.records, r => `${r.teamId}:${r.number}`);
+    const sprintId = (key?: string) => {
+      const c = key ? SPRINTS.find(x => x.key === key) : undefined;
+      return c ? sprintByTeamNumber.get(`${teamId(c.team)}:${c.number}`) ?? null : null;
+    };
+    counts.sprints = sprintRes.records.length;
+
+    // ---- Issues ------------------------------------------------------------
+    // Numbered per team in seed order, so identifiers read like a backlog that grew over time.
+    const counters: Record<string, number> = {};
+    const positions: Record<string, number> = {};
+    const identifierByKey = new Map<string, string>();
+    const issueRows = ISSUES.map(i => {
+      const number = (counters[i.team] = (counters[i.team] ?? 0) + 1);
+      const identifier = `${i.team}-${number}`;
+      identifierByKey.set(i.key, identifier);
+      const sid = statusId(i.team, i.state);
+      const position = (positions[sid] = (positions[sid] ?? 0) + 1024);
+      return {
+        title: i.title, identifier, number, teamId: teamId(i.team), description: i.description ?? null, statusId: sid,
+        priority: i.priority, estimate: i.estimate ?? null, issueType: i.type, assigneeId: memberId(i.assignee),
+        creatorId: memberId(i.creator), projectId: projectId(i.project), milestoneId: milestoneId(i.milestone),
+        sprintId: sprintId(i.sprint), parentId: null as string | null, dueDate: i.dueOffset == null ? null : dateAt(i.dueOffset),
+        openedAt: at(i.openedOffset), startedAt: i.startedOffset == null ? null : at(i.startedOffset),
+        completedAt: i.completedOffset == null ? null : at(i.completedOffset),
+        canceledAt: i.canceledOffset == null ? null : at(i.canceledOffset), position, archived: false,
+      };
+    });
+
+    const inserted: Array<{ id: string; identifier?: string }> = [];
+    await chunked(issueRows, async batch => {
+      const r = await zite.issues.bulkCreate({ records: batch });
+      inserted.push(...r.records);
+    });
+    const issueByIdentifier = indexBy(inserted, r => r.identifier);
+    const issueId = (key: string) => issueByIdentifier.get(identifierByKey.get(key) ?? '') ?? null;
+    counts.issues = inserted.length;
+
+    for (const t of TEAMS) await zite.teams.update({ id: teamId(t.key), record: { issueCounter: counters[t.key] ?? 0 } });
+    for (const i of ISSUES) {
+      if (i.parent && issueId(i.key) && issueId(i.parent)) {
+        await zite.issues.update({ id: issueId(i.key)!, record: { parentId: issueId(i.parent) } });
+      }
+    }
+
+    const issueLabelRows = ISSUES.flatMap(i =>
+      (i.labels ?? []).map(l => ({ name: identifierByKey.get(i.key) ?? '', issueId: issueId(i.key)!, labelId: labelId(l)! })),
+    ).filter(r => r.issueId && r.labelId);
+    await chunked(issueLabelRows, async batch => {
+      await zite.issueLabels.bulkCreate({ records: batch });
+    });
+    counts.issueLabels = issueLabelRows.length;
+
+    // ---- Subscribers: creator, assignee, and later every commenter ----------
+    const subs = new Set<string>();
+    const subscribe = (issue: string | null, member: string | null) => {
+      if (issue && member) subs.add(`${issue}|${member}`);
+    };
+    for (const i of ISSUES) {
+      subscribe(issueId(i.key), memberId(i.creator));
+      subscribe(issueId(i.key), memberId(i.assignee));
+    }
+
+    // ---- Relations (stored from both sides) --------------------------------
+    const INVERSE: Record<string, string> = { blocks: 'blocked_by', blocked_by: 'blocks', relates: 'relates', duplicate_of: 'duplicated_by' };
+    const relationRows = RELATIONS.flatMap(r => {
+      const a = issueId(r.issue);
+      const b = issueId(r.related);
+      if (!a || !b) return [];
+      return [
+        { name: `${identifierByKey.get(r.issue)} ${r.type} ${identifierByKey.get(r.related)}`, issueId: a, relatedIssueId: b, type: r.type },
+        { name: `${identifierByKey.get(r.related)} ${INVERSE[r.type]} ${identifierByKey.get(r.issue)}`, issueId: b, relatedIssueId: a, type: INVERSE[r.type] },
+      ];
+    });
+    if (relationRows.length) await zite.issueRelations.bulkCreate({ records: relationRows });
+    counts.issueRelations = relationRows.length;
+
+    // ---- Attachments -------------------------------------------------------
+    const kindOf = (url: string) =>
+      url.includes('github.com') ? 'github' : url.includes('figma.com') ? 'figma' : url.includes('loom.com') ? 'loom'
+      : url.includes('sentry.io') ? 'sentry' : url.includes('notion.') || url.includes('docs.google') ? 'doc' : 'link';
+    const attachmentRows = ATTACHMENTS.map(a => ({
+      title: a.title, issueId: issueId(a.issue), url: a.url, kind: kindOf(a.url), creatorId: memberId(a.creator), addedAt: at(a.offset),
+    })).filter(a => a.issueId);
+    if (attachmentRows.length) await zite.issueAttachments.bulkCreate({ records: attachmentRows });
+    counts.attachments = attachmentRows.length;
+
+    // ---- Comments, replies and reactions ------------------------------------
+    // postedAt is unique per comment, which gives a natural key to map rows back.
+    const postedAtOf = (idx: number) => new Date(now + COMMENTS[idx].offset * DAY + idx * 1000).toISOString();
+    const commentIdByIndex = new Map<number, string>();
+    for (const pass of ['roots', 'replies'] as const) {
+      const indexes = COMMENTS.map((_, idx) => idx).filter(idx => (pass === 'roots') === (COMMENTS[idx].replyTo === undefined));
+      const rows = indexes
+        .map(idx => ({
+          idx,
+          record: {
+            body: COMMENTS[idx].body, issueId: issueId(COMMENTS[idx].issue), authorId: memberId(COMMENTS[idx].author),
+            parentId: COMMENTS[idx].replyTo !== undefined ? commentIdByIndex.get(COMMENTS[idx].replyTo!) ?? null : null,
+            postedAt: postedAtOf(idx), editedAt: null, resolved: false,
+          },
+        }))
+        .filter(r => r.record.issueId);
+      if (!rows.length) continue;
+      const res = await zite.comments.bulkCreate({ records: rows.map(r => r.record) });
+      const byPosted = indexBy(res.records, r => (r.postedAt ? new Date(r.postedAt).toISOString() : null));
+      for (const r of rows) {
+        const id = byPosted.get(r.record.postedAt);
+        if (id) commentIdByIndex.set(r.idx, id);
+        subscribe(r.record.issueId, r.record.authorId);
+      }
+    }
+    counts.comments = commentIdByIndex.size;
+
+    const reactionRows = COMMENTS.flatMap((c, idx) =>
+      (c.reactions ?? []).map(r => ({
+        name: r.emoji, commentId: commentIdByIndex.get(idx) ?? null, issueId: issueId(c.issue), memberId: memberId(r.member), emoji: r.emoji,
+      })),
+    ).filter(r => r.commentId && r.issueId && r.memberId);
+    if (reactionRows.length) await zite.reactions.bulkCreate({ records: reactionRows });
+    counts.reactions = reactionRows.length;
+
+    const subscriberRows = [...subs].map(s => {
+      const [issue, member] = s.split('|');
+      return { name: 'subscriber', issueId: issue, memberId: member };
+    });
+    await chunked(subscriberRows, async batch => {
+      await zite.issueSubscribers.bulkCreate({ records: batch });
+    });
+
+    // ---- Activity, derived from each issue's own lifecycle -----------------
+    // Derived rather than hand-written, so the history can never contradict the issue.
+    const activityRows: Array<Record<string, unknown>> = [];
+    for (const i of ISSUES) {
+      const id = issueId(i.key);
+      if (!id) continue;
+      const creator = memberId(i.creator);
+      const worker = memberId(i.assignee) ?? creator;
+      const push = (row: Record<string, unknown>) => activityRows.push({ issueId: id, ...row });
+      push({ name: 'created the issue', actorId: creator, type: 'created', occurredAt: at(i.openedOffset) });
+      if (i.assignee) {
+        push({
+          name: 'changed assignee', actorId: creator, type: 'assignee_changed', toValue: memberId(i.assignee),
+          toLabel: memberName(i.assignee), occurredAt: at(i.openedOffset + 0.02),
+        });
+      }
+      if (i.sprint) {
+        const c = SPRINTS.find(x => x.key === i.sprint)!;
+        push({ name: 'changed sprint', actorId: creator, type: 'sprint_changed', toValue: sprintId(i.sprint), toLabel: `Sprint ${c.number}`, occurredAt: at(Math.max(i.openedOffset + 0.05, Math.min(c.startOffset, i.startedOffset ?? c.startOffset))) });
+      }
+      if (i.startedOffset !== undefined) {
+        push({ name: 'changed status', actorId: worker, type: 'status_changed', fromLabel: 'To do', toLabel: 'In Progress', occurredAt: at(i.startedOffset) });
+      }
+      if (i.state === 'review' || (i.state === 'done' && i.startedOffset !== undefined && i.completedOffset !== undefined && i.type !== 'Chore')) {
+        const reviewAt = i.completedOffset !== undefined ? i.completedOffset - Math.min(1, (i.completedOffset - (i.startedOffset ?? i.completedOffset)) / 2) : (i.startedOffset ?? i.openedOffset) + 1;
+        push({ name: 'changed status', actorId: worker, type: 'status_changed', fromLabel: 'In Progress', toLabel: 'In Review', occurredAt: at(Math.min(reviewAt, -0.01)) });
+      }
+      if (i.completedOffset !== undefined) {
+        push({ name: 'changed status', actorId: worker, type: 'status_changed', fromLabel: 'In Review', toLabel: 'Done', occurredAt: at(i.completedOffset) });
+      }
+      if (i.canceledOffset !== undefined) {
+        push({ name: 'changed status', actorId: creator, type: 'status_changed', fromLabel: 'Backlog', toLabel: 'Canceled', occurredAt: at(i.canceledOffset) });
+      }
+    }
+    for (const a of ATTACHMENTS) {
+      const id = issueId(a.issue);
+      if (id) activityRows.push({ issueId: id, name: 'added a link', actorId: memberId(a.creator), type: 'attachment_added', toLabel: a.title, toValue: a.url, occurredAt: at(a.offset) });
+    }
+    await chunked(activityRows, async batch => {
+      await zite.activity.bulkCreate({ records: batch });
+    });
+    counts.activity = activityRows.length;
+
+    // ---- Views & templates -------------------------------------------------
+    const viewRes = await zite.views.bulkCreate({
+      records: VIEWS.map((v, n) => {
+        const f = v.filters;
+        const filters: Record<string, unknown> = {};
+        if (f.teamKeys) filters.teamIds = f.teamKeys.map(teamId);
+        if (f.statusTypes) filters.statusTypes = f.statusTypes;
+        // ME stays a token: a shared "assigned to me" view means whoever is looking.
+        if (f.assigneeKeys) filters.assigneeIds = f.assigneeKeys.map(k => (k === ME || k === 'none' ? k : memberId(k)));
+        if (f.priorities) filters.priorities = f.priorities;
+        if (f.issueTypes) filters.issueTypes = f.issueTypes;
+        if (f.projectKeys) filters.projectIds = f.projectKeys.map(k => projectId(k));
+        if (f.labelKeys) filters.labelIds = f.labelKeys.map(k => labelId(k));
+        if (f.sprintIds) filters.sprintIds = f.sprintIds;
+        if (f.due) filters.due = f.due;
+        if (f.relation) filters.relation = f.relation;
+        if (f.estimated) filters.estimated = f.estimated;
+        return {
+          name: v.name, description: v.description, ownerId: null, teamId: v.team ? teamId(v.team) : null,
+          scope: v.team ? 'Team' : 'Workspace', icon: v.icon, color: v.color, filters: JSON.stringify(filters),
+          grouping: v.grouping, ordering: v.ordering, options: '{}', display: v.display, position: n + 1,
+        };
+      }),
+    });
+    const viewByName = indexBy(viewRes.records, r => r.name);
+    counts.views = viewRes.records.length;
+
+    if (TEMPLATES.length) {
+      await zite.issueTemplates.bulkCreate({
+        records: TEMPLATES.map((t, n) => ({
+          name: t.name, teamId: t.team ? teamId(t.team) : null, title: t.title, description: t.description, priority: t.priority,
+          estimate: t.estimate ?? null, issueType: t.type, labelIds: JSON.stringify(t.labels.map(labelId).filter(Boolean)), position: n + 1,
+        })),
+      });
+    }
+    counts.templates = TEMPLATES.length;
+
+    // ---- Inbox and pins for whoever opened the app -------------------
+    if (NOTIFICATIONS.length) {
+      await zite.notifications.bulkCreate({
+        records: NOTIFICATIONS.map(n => ({
+          name: n.name.replace('{issue}', n.issue ? identifierByKey.get(n.issue) ?? '' : ''),
+          body: n.body.slice(0, 240), memberId: actor.id, actorId: memberId(n.actor), issueId: n.issue ? issueId(n.issue) : null,
+          projectId: n.project ? projectId(n.project) : null, commentId: null, type: n.type, read: n.read,
+          readAt: n.read ? at(n.offset + 0.1) : null, snoozedUntil: null, archived: false, occurredAt: at(n.offset),
+        })),
+      });
+    }
+    counts.notifications = NOTIFICATIONS.length;
+
+    const pinRows = PINS.map((f, n) => ({
+      name: f.entityType, memberId: actor.id, entityType: f.entityType, position: n + 1,
+      entityId:
+        f.entityType === 'Project' ? projectId(f.key)
+        : f.entityType === 'Goal' ? goalId(f.key)
+        : f.entityType === 'Sprint' ? sprintId(f.key)
+        : viewByName.get(VIEWS.find(v => v.key === f.key)?.name ?? '') ?? null,
+    })).filter(f => f.entityId);
+    if (pinRows.length) await zite.pins.bulkCreate({ records: pinRows as never });
+    counts.pins = pinRows.length;
+
+    return { created: true, counts };
+  },
+});
