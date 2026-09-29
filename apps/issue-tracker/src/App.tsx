@@ -1,11 +1,9 @@
-import { useQueryClient } from '@tanstack/react-query';
-import { lazy, useEffect, useRef, useState, type ReactNode } from 'react';
+import { lazy, type ReactNode } from 'react';
 import { HashRouter, Navigate, Route, Routes, useParams } from 'react-router-dom';
 import { Toaster } from 'sonner';
-import { seedWorkspace } from 'zitejs/api';
 import { Logo } from './glyphs';
 import { errorMessage } from './lib/errors';
-import { qk, useBootstrap } from './lib/queries';
+import { useBootstrap } from './lib/queries';
 import { SCOPED_SECTIONS } from './lib/scope';
 import { useTheme } from './lib/theme';
 import { WorkspaceProvider, useWorkspace } from './lib/workspace';
@@ -39,7 +37,7 @@ const ViewsPage = lazy(() => import('./pages/ViewsPage').then(m => ({ default: m
  * runtime does not rewrite, so a refreshed path-based deep link would 404.
  */
 
-function BootScreen({ state, onRetry, message }: { state: 'loading' | 'seeding' | 'error'; onRetry: () => void; message?: string }) {
+function BootScreen({ state, onRetry, message }: { state: 'loading' | 'error'; onRetry: () => void; message?: string }) {
   return (
     <div className="grid h-[100dvh] place-items-center bg-paper px-6">
       <div className="flex max-w-sm flex-col items-center text-center animate-rise-in">
@@ -56,11 +54,8 @@ function BootScreen({ state, onRetry, message }: { state: 'loading' | 'seeding' 
           </>
         ) : (
           <>
-            <h1 className="font-display text-display-sm">{state === 'seeding' ? 'Setting up your workspace' : 'Opening Issue Tracker'}</h1>
-            <p className="mt-1.5 min-h-[42px] text-body text-ink-2">
-              {state === 'seeding' ? 'Creating teams, projects, a sprint in flight and an inbox for you. This happens once.' : ''}
-            </p>
-            <div className="mt-3 h-1 w-40 overflow-hidden rounded-full bg-sunken">
+            <h1 className="font-display text-display-sm">Opening Issue Tracker</h1>
+            <div className="mt-5 h-1 w-40 overflow-hidden rounded-full bg-sunken">
               <div className="h-full w-1/3 rounded-full bg-highlight" style={{ animation: 'boot-slide 1.2s ease-in-out infinite' }} />
             </div>
             <style>{'@keyframes boot-slide{0%{transform:translateX(-100%)}100%{transform:translateX(300%)}}'}</style>
@@ -103,39 +98,12 @@ function StoredScopeRedirect({ section }: { section: string }) {
 }
 
 function Boot() {
-  const qc = useQueryClient();
   const { data, isError, error, refetch } = useBootstrap();
-  const [seeding, setSeeding] = useState(false);
-  const [seedFailed, setSeedFailed] = useState(false);
-  const started = useRef(false);
-
-  // A fresh install builds its demo workspace once, on first open.
-  useEffect(() => {
-    if (!data || data.seeded || started.current) return;
-    started.current = true;
-    setSeeding(true);
-    seedWorkspace({})
-      .then(() => qc.invalidateQueries({ queryKey: qk.bootstrap }))
-      .catch(() => setSeedFailed(true))
-      .finally(() => setSeeding(false));
-  }, [data, qc]);
 
   // A deactivated member is refused by the server with a message worth showing as-is.
   const refusal = isError ? errorMessage(error, '') : '';
-  if (isError || seedFailed) {
-    return (
-      <BootScreen
-        state="error"
-        message={/deactivated/i.test(refusal) ? refusal : undefined}
-        onRetry={() => {
-          setSeedFailed(false);
-          started.current = false;
-          refetch();
-        }}
-      />
-    );
-  }
-  if (!data || seeding || !data.seeded) return <BootScreen state={seeding || (data && !data.seeded) ? 'seeding' : 'loading'} onRetry={refetch} />;
+  if (isError) return <BootScreen state="error" message={/deactivated/i.test(refusal) ? refusal : undefined} onRetry={() => refetch()} />;
+  if (!data) return <BootScreen state="loading" onRetry={() => refetch()} />;
 
   return (
     <WorkspaceProvider data={data}>

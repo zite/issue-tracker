@@ -1,14 +1,14 @@
 /**
- * Shapes for the demo workspace.
+ * Shapes for the sample workspace, which an admin loads from Settings → General.
  *
  * Every relationship is written as a KEY into another list, never an id — ids
  * do not exist until the seed endpoint inserts the rows. Dates are DAY OFFSETS
- * from the moment of seeding (negative = past), so a template installed months
+ * from the moment of seeding (negative = past), so a sample loaded months
  * from now still has a sprint in flight and believable overdue work.
  *
- * `ME` stands for whoever opens the app first. The seed endpoint rewrites it to
- * that person's member id, so a fresh install greets them with real work in
- * "My issues" and an inbox with something in it.
+ * `ME` stands for the admin who loads the sample. The seed endpoint rewrites it
+ * to that person's member id, so they land on real work in "My issues" and an
+ * inbox with something in it.
  */
 
 export const ME = '__me__';

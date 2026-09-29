@@ -1,13 +1,16 @@
 /**
- * Demo workspace for Issue Tracker: Quillmark, a small company building a collaborative
+ * Sample workspace for Issue Tracker: Quillmark, a small company building a collaborative
  * writing app (web, iOS, Android) with a sync engine, search, an AI assistant and
- * a public API.
+ * a public API. Nothing loads it automatically; an admin can from Settings → General.
  *
- * The data is written to make every screen believable on first open — a sprint in
- * flight with a burndown that steps down, velocity history in past sprints, a
+ * The data is written to make every screen believable the moment it loads: a sprint
+ * in flight with a burndown that steps down, velocity history in past sprints, a
  * roadmap spread across three months either side of today, and an inbox waiting
- * for whoever opens the app (`ME`). The shapes and their rules live in `./types`;
+ * for whoever loaded it (`ME`). The shapes and their rules live in `./types`;
  * `api/seedWorkspace.ts` is the consumer.
+ *
+ * `TEAMS[0]` matches `DEFAULT_TEAM` in `server/setup.ts`, and every person's email
+ * is on `SAMPLE_EMAIL_DOMAIN`. Keep both true if you change this file.
  */
 import {
   ME,
@@ -1910,7 +1913,7 @@ export const TEMPLATES: TemplateSeed[] = [
   },
 ];
 
-// ---- Inbox & pins for whoever opens the app ---------------------------
+// ---- Inbox & pins for whoever loads the sample -------------------------
 
 export const NOTIFICATIONS: NotificationSeed[] = [
   {

@@ -2,16 +2,7 @@ import { z } from 'zod';
 import { createEndpoint, ZiteError } from 'zitejs/backend';
 import { zite } from 'zitejs/db';
 import { assertCan, getActor } from '../server/actor';
-
-const DEFAULT_STATES = [
-  { name: 'Intake', type: 'intake', color: '#D24A22', position: 0, description: 'Inbound work waiting to be accepted.' },
-  { name: 'Backlog', type: 'backlog', color: '#A39C8F', position: 1, description: 'Accepted but not yet planned.' },
-  { name: 'To do', type: 'unstarted', color: '#8A8275', position: 2, description: 'Planned and ready to pick up.' },
-  { name: 'In Progress', type: 'started', color: '#BF8300', position: 3, description: 'Being worked on.' },
-  { name: 'In Review', type: 'started', color: '#3F76D0', position: 4, description: 'Waiting on review.' },
-  { name: 'Done', type: 'completed', color: '#2E9460', position: 5, description: 'Finished.' },
-  { name: 'Canceled', type: 'canceled', color: '#A39C8F', position: 6, description: 'Will not be done.' },
-];
+import { DEFAULT_STATES } from '../server/setup';
 
 const schema = z.object({
   id: z.string().optional(),

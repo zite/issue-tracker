@@ -1,7 +1,8 @@
 import { z } from 'zod';
-import { createEndpoint } from 'zitejs/backend';
+import { createEndpoint, ZiteError } from 'zitejs/backend';
 import { zite } from 'zitejs/db';
 import { getActor } from '../server/actor';
+import { SAMPLE_EMAIL_DOMAIN, sampleDataBlocker } from '../server/setup';
 import { chunked } from '../server/sql';
 import {
   ATTACHMENTS, COMMENTS, SPRINTS, PINS, GOALS, ISSUES, LABELS, MEMBERS, MILESTONES,
@@ -11,7 +12,7 @@ import { ME, type StateKey } from '../seed/types';
 
 const DAY = 86_400_000;
 
-/** Every team gets this workflow; `intake` only where the team has intake on. */
+/** Every new sample team gets this workflow; `intake` only where the team has intake on. */
 const WORKFLOW: Array<{ key: StateKey; name: string; type: string; color: string; description: string }> = [
   { key: 'intake', name: 'Intake', type: 'intake', color: '#D24A22', description: 'Inbound work waiting to be accepted.' },
   { key: 'backlog', name: 'Backlog', type: 'backlog', color: '#A39C8F', description: 'Accepted but not yet planned.' },
@@ -33,38 +34,38 @@ function indexBy<T extends { id: string }>(records: T[], key: (r: T) => string |
 }
 
 export default createEndpoint({
-  description: 'Build the demo workspace the first time Issue Tracker is opened',
+  description: 'Load the sample workspace, for an admin trying Issue Tracker in a workspace with no work in it yet',
   authenticated: true,
   inputSchema: z.object({}),
-  outputSchema: z.object({ created: z.boolean(), counts: z.record(z.string(), z.number()) }),
+  outputSchema: z.object({ counts: z.record(z.string(), z.number()) }),
   execute: async ({ context }) => {
-    // Idempotent: one team is enough to know this already ran.
-    const existing = await zite.teams.findAll({ limit: 1 });
-    if (existing.records.length > 0) return { created: false, counts: {} };
-
     const actor = await getActor(context);
+    if (actor.role !== 'Admin') throw new ZiteError('Only admins can load sample data', 'FORBIDDEN');
+    // The same rule decides whether Settings shows the control at all.
+    const blocker = await sampleDataBlocker();
+    if (blocker) throw new ZiteError(blocker, 'CONFLICT');
+
     const now = Date.now();
     const at = (offset: number) => new Date(now + offset * DAY).toISOString();
     const dateAt = (offset: number) => at(offset).slice(0, 10);
     const counts: Record<string, number> = {};
 
-    // ---- Teams & members ---------------------------------------------------
-    const teamRes = await zite.teams.bulkCreate({
-      records: TEAMS.map((t, n) => ({
-        name: t.name, key: t.key, description: t.description, icon: t.icon, color: t.color,
-        sprintsEnabled: t.sprintsEnabled, sprintDurationWeeks: t.sprintDurationWeeks, intakeEnabled: t.intakeEnabled,
-        estimateScale: t.estimateScale, issueCounter: 0, position: n + 1,
-      })),
-    });
-    const teamByKey = indexBy(teamRes.records, r => r.key);
-    const teamId = (key: string) => teamByKey.get(key)!;
-    counts.teams = teamRes.records.length;
-
+    // ---- Members first: they mark the sample as loaded ----------------------
     const memberRes = await zite.members.bulkCreate({
       records: MEMBERS.map(m => ({
         name: m.name, email: m.email.toLowerCase(), jobTitle: m.jobTitle, role: m.role, status: 'Active', color: m.color, avatarUrl: null,
       })),
     });
+    // A second run racing this one got past the check above too. Whichever
+    // created the oldest sample person carries on; the other removes its own and stops.
+    const { rows: oldest } = await zite.sql({
+      query: `SELECT id FROM "Members" WHERE LOWER("email") LIKE $1 ORDER BY created_at ASC, id ASC LIMIT 1`,
+      params: [`%@${SAMPLE_EMAIL_DOMAIN}`],
+    });
+    if (!memberRes.records.some(r => r.id === String(oldest[0]?.id))) {
+      for (const r of memberRes.records) await zite.members.delete({ id: r.id });
+      throw new ZiteError('The sample data is already being loaded.', 'CONFLICT');
+    }
     const memberByEmail = indexBy(memberRes.records, r => r.email?.toLowerCase());
     const memberId = (key: string | undefined | null): string | null => {
       if (!key) return null;
@@ -75,36 +76,107 @@ export default createEndpoint({
     const memberName = (key: string) => (key === ME ? actor.name : MEMBERS.find(m => m.key === key)?.name ?? 'Someone');
     counts.members = memberRes.records.length;
 
+    // ---- Teams ---------------------------------------------------------------
+    // A team that already uses a sample team's key is filled in, not
+    // duplicated: a fresh install's default team is the sample's ENG. Its
+    // settings stay as they are; only a blank description is filled.
+    const existingTeams = (await zite.teams.findAll({ limit: 200 })).records;
+    const teamByKey = new Map<string, string>();
+    const intakeOn = new Map<string, boolean>();
+    const reused = new Set<string>();
+    for (const t of TEAMS) {
+      const found = existingTeams.find(e => (e.key ?? '').toUpperCase() === t.key);
+      if (!found) continue;
+      reused.add(t.key);
+      teamByKey.set(t.key, found.id);
+      intakeOn.set(t.key, Boolean(found.intakeEnabled));
+      if (!found.description) await zite.teams.update({ id: found.id, record: { description: t.description } });
+    }
+    const newTeams = TEAMS.filter(t => !reused.has(t.key));
+    const lastPosition = Math.max(0, ...existingTeams.map(t => Number(t.position ?? 0)));
+    if (newTeams.length) {
+      const teamRes = await zite.teams.bulkCreate({
+        records: newTeams.map((t, n) => ({
+          name: t.name, key: t.key, description: t.description, icon: t.icon, color: t.color,
+          sprintsEnabled: t.sprintsEnabled, sprintDurationWeeks: t.sprintDurationWeeks, intakeEnabled: t.intakeEnabled,
+          estimateScale: t.estimateScale, issueCounter: 0, position: lastPosition + n + 1,
+        })),
+      });
+      for (const [key, id] of indexBy(teamRes.records, r => r.key)) teamByKey.set(key, id);
+      for (const t of newTeams) intakeOn.set(t.key, t.intakeEnabled);
+    }
+    const teamId = (key: string) => teamByKey.get(key)!;
+    counts.teams = newTeams.length;
+
+    const reusedIds = [...reused].map(teamId);
+    const memberships = reusedIds.length
+      ? (await zite.teamMembers.findAll({ filters: { teamId: { in: reusedIds } }, limit: 2000 })).records
+      : [];
+    const onTeam = new Set(memberships.map(r => `${r.teamId}|${r.memberId}`));
     await zite.teamMembers.bulkCreate({
       records: [
         ...MEMBERS.flatMap(m => m.teams.map(t => ({ name: `${t} · ${m.name}`, teamId: teamId(t), memberId: memberId(m.key)! }))),
-        // Whoever opens the template first is on every team.
+        // Whoever loads the sample is on every team.
         ...TEAMS.map(t => ({ name: `${t.key} · ${actor.name}`, teamId: teamId(t.key), memberId: actor.id })),
-      ],
+      ].filter(r => !onTeam.has(`${r.teamId}|${r.memberId}`)),
     });
 
     // ---- Statuses ---------------------------------------------------
-    const stateRes = await zite.statuses.bulkCreate({
-      records: TEAMS.flatMap(t =>
-        WORKFLOW.filter(s => s.key !== 'intake' || t.intakeEnabled).map((s, position) => ({
-          name: s.name, teamId: teamId(t.key), type: s.type, color: s.color, description: s.description, position,
-        })),
-      ),
-    });
-    const stateByTeamName = indexBy(stateRes.records, r => `${r.teamId}:${r.name}`);
+    // New teams get the sample workflow. A reused team keeps its own, and each
+    // sample status lands on the one with the same name, else the same type.
+    const kept = reusedIds.length
+      ? (await zite.statuses.findAll({ filters: { teamId: { in: reusedIds } }, limit: 500 })).records
+      : [];
+    const needWorkflow = TEAMS.filter(t => !kept.some(s => s.teamId === teamId(t.key)));
+    const stateRes = needWorkflow.length
+      ? await zite.statuses.bulkCreate({
+          records: needWorkflow.flatMap(t =>
+            WORKFLOW.filter(s => s.key !== 'intake' || intakeOn.get(t.key)).map((s, position) => ({
+              name: s.name, teamId: teamId(t.key), type: s.type, color: s.color, description: s.description, position,
+            })),
+          ),
+        })
+      : { records: [] as typeof kept };
+    const statesByTeam = new Map<string, typeof kept>();
+    for (const s of [...kept, ...stateRes.records].sort((a, b) => Number(a.position ?? 0) - Number(b.position ?? 0))) {
+      const list = statesByTeam.get(s.teamId ?? '') ?? [];
+      list.push(s);
+      statesByTeam.set(s.teamId ?? '', list);
+    }
     const statusId = (team: string, key: StateKey) => {
-      const def = WORKFLOW.find(s => s.key === key)!;
-      return stateByTeamName.get(`${teamId(team)}:${def.name}`) ?? stateByTeamName.get(`${teamId(team)}:Backlog`)!;
+      // With intake off, an intake issue waits in the backlog instead.
+      const def = WORKFLOW.find(s => s.key === (key === 'intake' && !intakeOn.get(team) ? 'backlog' : key))!;
+      const mine = statesByTeam.get(teamId(team)) ?? [];
+      const ofType = mine.filter(s => s.type === def.type);
+      return (
+        mine.find(s => (s.name ?? '').trim().toLowerCase() === def.name.toLowerCase()) ??
+        // In Progress and In Review share a type; review takes the second one.
+        (def.key === 'review' ? ofType[1] ?? ofType[0] : ofType[0]) ??
+        mine.find(s => s.type === 'backlog') ??
+        mine[0]
+      ).id;
     };
     counts.statuses = stateRes.records.length;
 
     // ---- Labels ------------------------------------------------------------
-    const labelRes = await zite.labels.bulkCreate({
-      records: LABELS.map(l => ({ name: l.name, color: l.color, description: l.description, teamId: l.team ? teamId(l.team) : null })),
+    // A label someone already made with the same name is used, not copied.
+    const existingLabels = (await zite.labels.findAll({ limit: 2000 })).records;
+    const labelByKey = new Map<string, string>();
+    const newLabels = LABELS.filter(l => {
+      const scope = l.team ? teamId(l.team) : '';
+      const found = existingLabels.find(e => (e.name ?? '').trim().toLowerCase() === l.name.toLowerCase() && (!e.teamId || e.teamId === scope));
+      if (found) labelByKey.set(l.key, found.id);
+      return !found;
     });
-    const labelByName = indexBy(labelRes.records, r => r.name);
-    const labelId = (key: string) => labelByName.get(LABELS.find(l => l.key === key)?.name ?? '') ?? null;
-    counts.labels = labelRes.records.length;
+    if (newLabels.length) {
+      const labelRes = await zite.labels.bulkCreate({
+        records: newLabels.map(l => ({ name: l.name, color: l.color, description: l.description, teamId: l.team ? teamId(l.team) : null })),
+      });
+      const byName = indexBy(labelRes.records, r => r.name);
+      for (const l of newLabels) if (byName.get(l.name)) labelByKey.set(l.key, byName.get(l.name)!);
+    }
+    const labelId = (key: string) => labelByKey.get(key) ?? null;
+    counts.labels = newLabels.length;
 
     // ---- Goals, projects, milestones, updates ------------------------
     const goalRes = await zite.goals.bulkCreate({
@@ -333,8 +405,13 @@ export default createEndpoint({
     counts.activity = activityRows.length;
 
     // ---- Views & templates -------------------------------------------------
-    const viewRes = await zite.views.bulkCreate({
-      records: VIEWS.map((v, n) => {
+    // Setup someone already made under the same name is left alone, not copied.
+    const taken = async (rows: Promise<{ records: Array<{ name?: string | null }> }>) =>
+      new Set((await rows).records.map(r => (r.name ?? '').trim().toLowerCase()));
+    const viewNames = await taken(zite.views.findAll({ limit: 2000 }));
+    const newViews = VIEWS.filter(v => !viewNames.has(v.name.toLowerCase()));
+    const viewRes = newViews.length ? await zite.views.bulkCreate({
+      records: newViews.map((v, n) => {
         const f = v.filters;
         const filters: Record<string, unknown> = {};
         if (f.teamKeys) filters.teamIds = f.teamKeys.map(teamId);
@@ -352,24 +429,26 @@ export default createEndpoint({
         return {
           name: v.name, description: v.description, ownerId: null, teamId: v.team ? teamId(v.team) : null,
           scope: v.team ? 'Team' : 'Workspace', icon: v.icon, color: v.color, filters: JSON.stringify(filters),
-          grouping: v.grouping, ordering: v.ordering, options: '{}', display: v.display, position: n + 1,
+          grouping: v.grouping, ordering: v.ordering, options: '{}', display: v.display, position: viewNames.size + n + 1,
         };
       }),
-    });
+    }) : { records: [] };
     const viewByName = indexBy(viewRes.records, r => r.name);
     counts.views = viewRes.records.length;
 
-    if (TEMPLATES.length) {
+    const templateNames = await taken(zite.issueTemplates.findAll({ limit: 2000 }));
+    const newTemplates = TEMPLATES.filter(t => !templateNames.has(t.name.toLowerCase()));
+    if (newTemplates.length) {
       await zite.issueTemplates.bulkCreate({
-        records: TEMPLATES.map((t, n) => ({
+        records: newTemplates.map((t, n) => ({
           name: t.name, teamId: t.team ? teamId(t.team) : null, title: t.title, description: t.description, priority: t.priority,
-          estimate: t.estimate ?? null, issueType: t.type, labelIds: JSON.stringify(t.labels.map(labelId).filter(Boolean)), position: n + 1,
+          estimate: t.estimate ?? null, issueType: t.type, labelIds: JSON.stringify(t.labels.map(labelId).filter(Boolean)), position: templateNames.size + n + 1,
         })),
       });
     }
-    counts.templates = TEMPLATES.length;
+    counts.templates = newTemplates.length;
 
-    // ---- Inbox and pins for whoever opened the app -------------------
+    // ---- Inbox and pins for whoever loaded the sample ----------------
     if (NOTIFICATIONS.length) {
       await zite.notifications.bulkCreate({
         records: NOTIFICATIONS.map(n => ({
@@ -393,6 +472,6 @@ export default createEndpoint({
     if (pinRows.length) await zite.pins.bulkCreate({ records: pinRows as never });
     counts.pins = pinRows.length;
 
-    return { created: true, counts };
+    return { counts };
   },
 });

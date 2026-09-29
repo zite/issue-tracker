@@ -22,8 +22,8 @@ hosting) go to security@zite.com too, but say which you mean.
 
 ## What we already know and treat as by design
 
-- The demo data is public sample content: a fictional product team, its issues
-  and sprints.
+- The sample data (loaded only when an admin asks for it) is public content: a
+  fictional product team, its issues and sprints.
 - The app is internal, so every signed-in organization member can see every
   issue. There is no per-project access control by design.
 

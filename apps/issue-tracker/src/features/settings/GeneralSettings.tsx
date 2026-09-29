@@ -1,7 +1,12 @@
 import { ArrowsClockwise, Check, Keyboard, ShieldCheck, Sparkle } from '@phosphor-icons/react';
+import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
-import { saveMember } from 'zitejs/api';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
+import { saveMember, seedWorkspace } from 'zitejs/api';
 import { useAppActions } from '../../lib/app-actions';
+import { errorMessage } from '../../lib/errors';
+import { qk } from '../../lib/queries';
 import { useTheme, type ThemePref } from '../../lib/theme';
 import { useWorkspace } from '../../lib/workspace';
 import { Avatar } from '../../ui/Avatar';
@@ -311,6 +316,63 @@ function AiCard() {
 }
 
 // ---------------------------------------------------------------------------
+// Sample data
+// ---------------------------------------------------------------------------
+
+/**
+ * A fresh install starts empty; this is the one way to fill it with the sample
+ * company. Only an admin sees it, and only while the sample has never been
+ * loaded and nobody has created an issue, project, goal or sprint.
+ * `seedWorkspace` refuses on the same rule.
+ */
+function SampleData() {
+  const ws = useWorkspace();
+  const app = useAppActions();
+  const qc = useQueryClient();
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  if (!ws.sampleDataAvailable || ws.me.role !== 'Admin') return null;
+
+  const load = async () => {
+    const ok = await app.confirm({
+      title: 'Load sample data?',
+      description:
+        'This adds a made-up company to the workspace: 10 people, 3 teams, 110 issues, 9 sprints, 9 projects and 3 goals, plus an inbox for you. There’s no one-click way to remove it, so only load it into a workspace you don’t plan to use for real work.',
+      confirmLabel: 'Load sample data',
+    });
+    if (!ok) return;
+    setLoading(true);
+    try {
+      await seedWorkspace({});
+      await qc.invalidateQueries();
+      toast.success('Sample data loaded');
+      navigate('/home');
+    } catch (e) {
+      toast.error(errorMessage(e, 'Couldn’t load the sample data'));
+      qc.invalidateQueries({ queryKey: qk.bootstrap });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <section aria-labelledby="sample-data-title" className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-8">
+      <div className="min-w-0">
+        <h3 id="sample-data-title" className="text-ui font-semibold text-ink-2">
+          Sample data
+        </h3>
+        <p className="mt-0.5 max-w-[520px] text-ui text-ink-3 text-pretty">
+          Fill this empty workspace with a made-up company’s teams, people, issues, sprints and projects, so you can try every screen.
+        </p>
+      </div>
+      <Button variant="secondary" size="sm" loading={loading} onClick={load} className="self-start sm:self-auto">
+        Load sample data
+      </Button>
+    </section>
+  );
+}
+
+// ---------------------------------------------------------------------------
 
 export function GeneralSettings() {
   const app = useAppActions();
@@ -343,6 +405,7 @@ export function GeneralSettings() {
           />
         </Card>
       </Subsection>
+      <SampleData />
     </>
   );
 }

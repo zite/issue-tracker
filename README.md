@@ -42,9 +42,12 @@ projects with milestones and check-ins, goals, a roadmap, saved views, an inbox,
 reports, settings with roles, and six AI assists that degrade gracefully when no
 AI is attached.
 
-It opens on a populated demo: a fictional product team with 3 teams, 110 issues,
-9 sprints and 9 projects, so every screen has something in it the first time you
-look. Settings has a one-click way to delete all of it.
+A fresh install starts empty, with one team (Engineering, key `ENG`) so the first
+issue can be filed straight away. To look around first, an admin can load sample
+data from **Settings → General**: a fictional product company with 3 teams, 110
+issues, 9 sprints and 9 projects. It is only offered while the workspace has no
+work in it, and there is no one-click way to remove it, so load it into a
+workspace you are using to try the app.
 
 The design language is documented in [DESIGN.md](DESIGN.md), which is worth
 reading before changing any UI.
@@ -131,8 +134,11 @@ claude mcp add --transport http zite https://mcp.zite.com/mcp
 > 5. Run `yarn install`, so the workspace packages are linked.
 > 6. `check_app`, `commit`, then `publish_app`.
 
-**3. Open the app.** It seeds the demo on first load. When you are ready for real
-data, use **Settings → Workspace → Remove demo data**.
+**3. Open the app.** The first person to open it becomes the admin and lands in an
+empty workspace with one team, Engineering (`ENG`). Rename it under **Settings →
+Teams** if it should be called something else; a team's key can't change. To try
+the app with data in it first, use **Load sample data** at the bottom of
+**Settings → General** before creating anything.
 
 ---
 
@@ -197,15 +203,27 @@ once (`lib/mutations.ts`).
 
 ---
 
-## Demo data
+## Sample data
 
-`seedWorkspace` runs once, on first open, and is idempotent. It builds
-*Quillmark*, a fictional collaborative writing app: 3 teams, 10 people, 9
-projects under 3 goals, 22 milestones, 14 check-ins, 9 sprints (past, current,
-upcoming), 110 issues with sub-issues, relations and links, 52 comments with
-replies and reactions, 429 history entries, 7 saved views, 4 templates and an
-inbox. Whoever opens it first is "you": they get real work across statuses, the
-inbox and pins. Dates are relative to the moment of seeding.
+Nothing is loaded automatically. The first time `bootstrap` finds no team, it
+creates Engineering (`ENG`) with the default workflow and puts everyone on it
+(`src/server/setup.ts`), because an issue can't be filed without a team.
+Nothing else is created.
+
+An admin can load the sample from **Settings → General → Sample data**, which
+calls `seedWorkspace`. It builds *Quillmark*, a fictional collaborative writing
+app: 3 teams, 10 people, 9 projects under 3 goals, 22 milestones, 14 check-ins,
+9 sprints (past, current, upcoming), 110 issues with sub-issues, relations and
+links, 52 comments with replies and reactions, 429 history entries, 7 saved
+views, 4 templates and an inbox. Whoever loads it is "you": they get real work
+across statuses, the inbox and pins. Dates are relative to the moment it loads.
+
+The control is shown, and `seedWorkspace` accepts the call, only while the
+sample has never been loaded (no member has a `@quillmark.test` address) and
+the workspace has no issues, projects, goals or sprints. It fills the existing
+`ENG` team instead of adding a second one, keeps that team's name and settings
+(it only fills in a blank description), reuses labels that already exist and
+skips templates and views whose names are taken. There is no one-click removal.
 
 ---
 

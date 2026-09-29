@@ -240,7 +240,8 @@ are visible (don't remove outlines); color is never the only signal.
 ## 8. Data rules (the backend already exists; read before calling endpoints)
 
 - Endpoints live in `apps/issue-tracker/src/api/*` and are imported from `zitejs/api`.
-  Server helpers in `src/server/*`. Seed in `src/seed/*`.
+  Server helpers in `src/server/*`. Seed in `src/seed/*`; it only runs when an admin
+  presses Load sample data in Settings → General, never on its own.
 - Rows carry **ids**; resolve names from `useWorkspace()`.
 - Foreign keys are text columns; an unset text is `''` → mapped to `null` on the way
   out. SQL joins cast the uuid side (`t.id::text = i."teamId"`).

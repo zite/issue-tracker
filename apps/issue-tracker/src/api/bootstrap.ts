@@ -3,6 +3,7 @@ import { createEndpoint } from 'zitejs/backend';
 import { zite } from 'zitejs/db';
 import { getActor } from '../server/actor';
 import { isConfigured } from '../server/ai';
+import { ensureDefaultTeam, sampleDataBlocker } from '../server/setup';
 import { bool, day, iso, num, numOrNull, ref, str } from '../server/sql';
 
 /**
@@ -17,7 +18,8 @@ export default createEndpoint({
   authenticated: true,
   inputSchema: z.object({}),
   outputSchema: z.object({
-    seeded: z.boolean(),
+    /** Whether Settings offers to load the sample data: only to an admin, and only while it's allowed. */
+    sampleDataAvailable: z.boolean(),
     aiAvailable: z.boolean(),
     me: z.object({
       id: z.string(), name: z.string(), email: z.string(), avatarUrl: z.string().nullable(),
@@ -81,11 +83,13 @@ export default createEndpoint({
   }),
   execute: async ({ context }) => {
     const actor = await getActor(context);
+    // A fresh install has no team yet, and nothing can be filed without one.
+    await ensureDefaultTeam(actor);
 
     const q = (query: string, params: unknown[] = []) => zite.sql({ query, params });
     const [
       teamRows, memberRows, membershipRows, stateRows, labelRows, goalRows, projectRows,
-      milestoneRows, sprintRows, viewRows, templateRows, pinRows, countRows, intakeRows,
+      milestoneRows, sprintRows, viewRows, templateRows, pinRows, countRows, intakeRows, sampleBlocker,
     ] = await Promise.all([
       q(`SELECT id, "name", "key", "icon", "color", "description", "sprintsEnabled", "sprintDurationWeeks", "intakeEnabled", "estimateScale", "position" FROM "Teams" ORDER BY "position" ASC NULLS LAST, "name" ASC`),
       q(`SELECT id, "name", "email", "avatarUrl", "color", "jobTitle", "role", "status" FROM "Members" ORDER BY "name" ASC`),
@@ -112,6 +116,7 @@ export default createEndpoint({
         [actor.id],
       ),
       q(`SELECT i."teamId", COUNT(*) AS "total" FROM "Issues" i JOIN "Statuses" ws ON ws.id::text = i."statusId" WHERE ws."type" = 'intake' AND COALESCE(i."archived", false) = false GROUP BY i."teamId"`),
+      actor.role === 'Admin' ? sampleDataBlocker() : Promise.resolve('Only admins can load sample data.'),
     ]);
 
     const teamsOf = new Map<string, string[]>();
@@ -135,7 +140,7 @@ export default createEndpoint({
     };
 
     return {
-      seeded: teamRows.rows.length > 0,
+      sampleDataAvailable: sampleBlocker === null,
       aiAvailable: isConfigured(),
       me: {
         id: actor.id,
