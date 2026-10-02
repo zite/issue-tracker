@@ -31,7 +31,11 @@ export const qk = {
 };
 
 export function useBootstrap() {
-  return useQuery({ queryKey: qk.bootstrap, queryFn: () => bootstrap({}), staleTime: 60_000, refetchOnWindowFocus: true });
+  return useQuery({
+    queryKey: qk.bootstrap, queryFn: () => bootstrap({}), staleTime: 60_000, refetchOnWindowFocus: true,
+    // A refusal won't change on retry, and retrying holds the loading screen for seconds.
+    retry: (count, error) => count < 2 && !/\(4\d\d\)|FORBIDDEN|DEMO_READ_ONLY/.test(String((error as Error)?.message ?? error)),
+  });
 }
 
 export function useIssues(filters: IssueFilters, ordering = 'manual', opts: { enabled?: boolean; limit?: number } = {}) {

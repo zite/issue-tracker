@@ -1,5 +1,6 @@
 import { ZiteError } from 'zitejs/backend';
 import { zite } from 'zitejs/db';
+import { DEMO_EMAIL, isDemo } from './demoPreview';
 
 /**
  * Who is making this request, as a Issue Tracker member.
@@ -54,9 +55,13 @@ export async function getActor(context: { user?: UserLike }): Promise<Actor> {
       throw new ZiteError('Your access to this workspace has been deactivated. Ask an admin to reactivate you.', 'FORBIDDEN');
     }
     // An invitation is accepted by showing up.
-    if (existing.status === 'Invited') await zite.members.update({ id: existing.id, record: { status: 'Active' } });
+    if (existing.status === 'Invited' && !isDemo(context)) await zite.members.update({ id: existing.id, record: { status: 'Active' } });
     return { id: existing.id, name: existing.name || email, email, role: asRole(existing.role), created: false };
   }
+
+  // The demo's database is read-only and refuses the whole request on any write,
+  // so the visitor acts as the first admin instead of joining.
+  if (isDemo(context)) return demoActor(context);
 
   // `context.user` omits the display name and image, so read the fuller
   // profile from the auth users table.
@@ -95,4 +100,16 @@ export async function getActor(context: { user?: UserLike }): Promise<Actor> {
   }
 
   return { id: created.id, name, email, role, created: true };
+}
+
+/** The oldest active member, admins first, so "my issues" and the inbox show the sample data; an empty workspace gets an in-memory admin. */
+async function demoActor(context: { user?: UserLike }): Promise<Actor> {
+  const { rows } = await zite.sql({
+    query: `SELECT id, "name", "email", "role" FROM "Members" WHERE "status" = 'Active'
+      ORDER BY (COALESCE("role", '') = 'Admin') DESC, created_at ASC, id ASC LIMIT 1`,
+    params: [],
+  });
+  const r = rows[0];
+  if (r) return { id: String(r.id), name: String(r.name ?? '') || DEMO_EMAIL, email: String(r.email ?? '') || DEMO_EMAIL, role: asRole(r.role), created: false };
+  return { id: '00000000-0000-0000-0000-000000000000', name: context.user?.firstName || 'Demo User', email: DEMO_EMAIL, role: 'Admin', created: false };
 }

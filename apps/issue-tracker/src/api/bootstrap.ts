@@ -84,7 +84,7 @@ export default createEndpoint({
   execute: async ({ context }) => {
     const actor = await getActor(context);
     // A fresh install has no team yet, and nothing can be filed without one.
-    await ensureDefaultTeam(actor);
+    await ensureDefaultTeam(actor, context);
 
     const q = (query: string, params: unknown[] = []) => zite.sql({ query, params });
     const [

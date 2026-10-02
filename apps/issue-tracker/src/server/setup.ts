@@ -1,5 +1,6 @@
 import { zite } from 'zitejs/db';
 import type { Actor } from './actor';
+import { isDemo } from './demoPreview';
 
 /**
  * What a workspace needs before anyone has created anything, and when the
@@ -34,7 +35,9 @@ export const DEFAULT_TEAM = {
 };
 
 /** Creates the default team, its workflow and memberships when the workspace has no team at all. */
-export async function ensureDefaultTeam(actor: Actor) {
+export async function ensureDefaultTeam(actor: Actor, context?: Parameters<typeof isDemo>[0]) {
+  // The demo's database is read-only; an empty listing workspace shows as empty.
+  if (isDemo(context)) return;
   const existing = await zite.teams.findAll({ limit: 1 });
   if (existing.records.length) return;
 
